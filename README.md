@@ -176,6 +176,12 @@ For a voluntary donation in Ether (ETH, Ethereum network):
 0x2E68cc76dE05A3099E68493872ab337346f1459D
 ```
 
+For a voluntary donation in Solana (SOL, Solana network):
+
+```text
+8vzCVjEscG1Va7wPCWZzAirwjj8SNxKKV65ZPZ2Yy6fp
+```
+
 ## License
 
 BackupCron is available under the [MIT license](LICENSE).

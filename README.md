@@ -170,6 +170,12 @@ For a voluntary donation in Bitcoin (BTC, Bitcoin network):
 bc1qvc6l4tk53ekg4jhw9chh863stq7m36mxjvsnud
 ```
 
+For a voluntary donation in Ether (ETH, Ethereum network):
+
+```text
+0x2E68cc76dE05A3099E68493872ab337346f1459D
+```
+
 ## License
 
 BackupCron is available under the [MIT license](LICENSE).

@@ -10,7 +10,7 @@ and open `Package.swift` or `BackupCron.xcodeproj` in Xcode.
 
 ```sh
 swift test
-./scripts/build-app.sh
+zsh scripts/build-app.sh
 ```
 
 The Swift package contains the automated tests. The Xcode project contains

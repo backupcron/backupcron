@@ -4,6 +4,47 @@ A free, open-source native macOS app for scheduled backups of files,
 projects and databases. All features are available without purchases,
 subscriptions or a limit on the number of jobs.
 
+## Screenshots
+
+These screenshots use demo data. The successful backup results shown come from actual runs.
+
+![Backup overview with file, project and database jobs](Resources/Screenshots/overview.jpg)
+
+<details>
+<summary>Files and folders: single file, ZIP settings and ordinary folder copy</summary>
+
+Select an individual file or a folder as the source.
+
+![Configure a backup for one file](Resources/Screenshots/single-file.jpg)
+
+Choose ZIP output, a filename template and retention of the last five successful copies.
+
+![ZIP output and retention settings](Resources/Screenshots/file-zip-settings.jpg)
+
+Keep a folder as an ordinary copy, with a recorded result and automatic retention.
+
+![Successful uncompressed folder backup](Resources/Screenshots/folder-backup.jpg)
+
+</details>
+
+<details>
+<summary>Projects: include Git and exclude dependency folders</summary>
+
+Keep the project's Git data and skip generated dependencies such as `node_modules`.
+
+![Project backup exclusions](Resources/Screenshots/project-exclusions.jpg)
+
+</details>
+
+<details>
+<summary>Databases: inspect table sizes before choosing exclusions</summary>
+
+This SQLite example keeps customers and orders while excluding request logs and sessions completely.
+
+![Database table sizes and exclusions](Resources/Screenshots/database-tables.jpg)
+
+</details>
+
 ## Features
 
 - Files, folders and projects: ordinary copies or ZIP archives.

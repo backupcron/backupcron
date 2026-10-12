@@ -164,6 +164,12 @@ If BackupCron helps you, you can thank the author by starring the repository,
 sharing the project, reporting a useful issue or contributing an improvement.
 Support is voluntary. All features remain free for everyone.
 
+For a voluntary donation in Bitcoin (BTC, Bitcoin network):
+
+```text
+bc1qvc6l4tk53ekg4jhw9chh863stq7m36mxjvsnud
+```
+
 ## License
 
 BackupCron is available under the [MIT license](LICENSE).

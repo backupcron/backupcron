@@ -1,0 +1,15 @@
+.build/
+.swiftpm/
+.DS_Store
+DerivedData/
+xcuserdata/
+*.xcuserstate
+.env
+.env.*
+!.env.example
+*.p8
+*.p12
+*.pem
+*.key
+*.mobileprovision
+state.json

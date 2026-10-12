@@ -1,0 +1,424 @@
+// !$*UTF8*$!
+{
+	"classes" = {
+
+	};
+	"objectVersion" = "56";
+	"archiveVersion" = "1";
+	"objects" = {
+		"000000000000000000000059" = {
+			"isa" = "PBXFileReference";
+			"path" = "Resources/AppIcon.icns";
+			"lastKnownFileType" = "image.icns";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"00000000000000000000005A" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "000000000000000000000059";
+		};
+		"000000000000000000000057" = {
+			"isa" = "PBXFileReference";
+			"path" = "Sources/BackupFlow/AudioFeedback.swift";
+			"lastKnownFileType" = "sourcecode.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"000000000000000000000058" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "000000000000000000000057";
+		};
+		"00000000000000000000003E" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "00000000000000000000001A";
+		};
+		"000000000000000000000037" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "00000000000000000000000B";
+		};
+		"000000000000000000000002" = {
+			"path" = "Sources/BackupFlow/BackupFlowApp.swift";
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"00000000000000000000003F" = {
+			"isa" = "PBXResourcesBuildPhase";
+			"buildActionMask" = "2147483647";
+			"files" = ("00000000000000000000003E", "00000000000000000000005A",);
+			"runOnlyForDeploymentPostprocessing" = "0";
+		};
+		"00000000000000000000000A" = {
+			"path" = "Sources/BackupFlow/Localization.swift";
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"000000000000000000000003" = {
+			"path" = "Sources/BackupFlow/BackupStore.swift";
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"000000000000000000000010" = {
+			"path" = "Sources/BackupFlow/Resources/en.lproj/Localizable.strings";
+			"isa" = "PBXFileReference";
+			"name" = "en";
+			"lastKnownFileType" = "text.plist.strings";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"00000000000000000000004C" = {
+			"buildConfigurationList" = "000000000000000000000029";
+			"targets" = ("000000000000000000000040", );
+			"developmentRegion" = "en";
+			"knownRegions" = ("en", "ru", "de", "fr", "es", "pt-BR", "it", "zh-Hans", "ja", "ko", "Base",);
+			"isa" = "PBXProject";
+			"compatibilityVersion" = "Xcode 14.0";
+			"productRefGroup" = "000000000000000000000021";
+			"projectDirPath" = "";
+			"attributes" = {
+				"LastUpgradeCheck" = "2660";
+				"BuildIndependentTargetsInParallel" = "YES";
+				"TargetAttributes" = {
+					"000000000000000000000040" = {
+						"SystemCapabilities" = {
+							"com.apple.Sandbox" = {
+								"enabled" = "1";
+							};
+						};
+						"CreatedOnToolsVersion" = "26.6";
+					};
+				};
+			};
+			"hasScannedForEncodings" = "0";
+			"projectRoot" = "";
+			"mainGroup" = "000000000000000000000026";
+		};
+		"00000000000000000000000B" = {
+			"path" = "Sources/BackupFlow/Models.swift";
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"000000000000000000000004" = {
+			"path" = "Sources/BackupFlow/ContentView.swift";
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"000000000000000000000011" = {
+			"path" = "Sources/BackupFlow/Resources/ru.lproj/Localizable.strings";
+			"isa" = "PBXFileReference";
+			"name" = "ru";
+			"lastKnownFileType" = "text.plist.strings";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"000000000000000000000005" = {
+			"path" = "Sources/BackupFlow/DashboardView.swift";
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"000000000000000000000012" = {
+			"path" = "Sources/BackupFlow/Resources/de.lproj/Localizable.strings";
+			"isa" = "PBXFileReference";
+			"name" = "de";
+			"lastKnownFileType" = "text.plist.strings";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"000000000000000000000006" = {
+			"path" = "Sources/BackupFlow/HistoryView.swift";
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"000000000000000000000013" = {
+			"path" = "Sources/BackupFlow/Resources/fr.lproj/Localizable.strings";
+			"isa" = "PBXFileReference";
+			"name" = "fr";
+			"lastKnownFileType" = "text.plist.strings";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"00000000000000000000001A" = {
+			"isa" = "PBXVariantGroup";
+			"name" = "Localizable.strings";
+			"children" = ("000000000000000000000010", "000000000000000000000011", "000000000000000000000012", "000000000000000000000013", "000000000000000000000014", "000000000000000000000015", "000000000000000000000016", "000000000000000000000017", "000000000000000000000018", "000000000000000000000019",);
+			"sourceTree" = "<group>";
+		};
+		"00000000000000000000000E" = {
+			"path" = "Sources/BackupFlow/SettingsView.swift";
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"00000000000000000000001B" = {
+			"path" = "Resources/Info.plist";
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "text.plist.xml";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"000000000000000000000007" = {
+			"path" = "Sources/BackupFlow/JobDetailView.swift";
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"000000000000000000000014" = {
+			"path" = "Sources/BackupFlow/Resources/es.lproj/Localizable.strings";
+			"isa" = "PBXFileReference";
+			"name" = "es";
+			"lastKnownFileType" = "text.plist.strings";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"000000000000000000000021" = {
+			"isa" = "PBXGroup";
+			"name" = "Products";
+			"children" = ("00000000000000000000001F", );
+			"sourceTree" = "<group>";
+		};
+		"00000000000000000000000F" = {
+			"path" = "Sources/BackupFlow/Theme.swift";
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"00000000000000000000001C" = {
+			"path" = "Configuration/BackupCron.entitlements";
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "text.plist.entitlements";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"000000000000000000000008" = {
+			"path" = "Sources/BackupFlow/JobEditorView.swift";
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"000000000000000000000015" = {
+			"path" = "Sources/BackupFlow/Resources/pt-BR.lproj/Localizable.strings";
+			"isa" = "PBXFileReference";
+			"name" = "pt-BR";
+			"lastKnownFileType" = "text.plist.strings";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"000000000000000000000022" = {
+			"isa" = "PBXGroup";
+			"name" = "Sources";
+			"children" = ("000000000000000000000001", "000000000000000000000002", "000000000000000000000003", "000000000000000000000004", "000000000000000000000005", "000000000000000000000006", "000000000000000000000007", "000000000000000000000008", "000000000000000000000009", "00000000000000000000000A", "00000000000000000000000B", "00000000000000000000000E", "00000000000000000000000F", "000000000000000000000057",);
+			"sourceTree" = "<group>";
+		};
+		"00000000000000000000002A" = {
+			"isa" = "XCBuildConfiguration";
+			"buildSettings" = {
+				"ENABLE_HARDENED_RUNTIME" = "YES";
+				"ENABLE_USER_SCRIPT_SANDBOXING" = "YES";
+				"CODE_SIGN_IDENTITY" = "-";
+				"CODE_SIGN_ENTITLEMENTS" = "Configuration/BackupCron.entitlements";
+				"ENABLE_APP_SANDBOX" = "YES";
+				"INFOPLIST_FILE" = "Resources/Info.plist";
+				"PRODUCT_BUNDLE_IDENTIFIER" = "com.backupcron.app";
+				"PRODUCT_MODULE_NAME" = "BackupFlow";
+				"CODE_SIGN_STYLE" = "Manual";
+				"LD_RUNPATH_SEARCH_PATHS" = ("$(inherited)", "@executable_path/../Frameworks",);
+				"PRODUCT_NAME" = "BackupCron";
+			};
+			"name" = "Debug";
+		};
+		"000000000000000000000009" = {
+			"path" = "Sources/BackupFlow/KeychainStore.swift";
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"000000000000000000000016" = {
+			"path" = "Sources/BackupFlow/Resources/it.lproj/Localizable.strings";
+			"isa" = "PBXFileReference";
+			"name" = "it";
+			"lastKnownFileType" = "text.plist.strings";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"000000000000000000000023" = {
+			"isa" = "PBXGroup";
+			"name" = "Resources";
+			"children" = ("00000000000000000000001A", "00000000000000000000001B", "000000000000000000000059",);
+			"sourceTree" = "<group>";
+		};
+		"000000000000000000000030" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "000000000000000000000004";
+		};
+		"00000000000000000000002B" = {
+			"isa" = "XCBuildConfiguration";
+			"buildSettings" = {
+				"ENABLE_HARDENED_RUNTIME" = "YES";
+				"ENABLE_USER_SCRIPT_SANDBOXING" = "YES";
+				"CODE_SIGN_ENTITLEMENTS" = "Configuration/BackupCron.entitlements";
+				"ENABLE_APP_SANDBOX" = "YES";
+				"INFOPLIST_FILE" = "Resources/Info.plist";
+				"PRODUCT_BUNDLE_IDENTIFIER" = "com.backupcron.app";
+				"PRODUCT_MODULE_NAME" = "BackupFlow";
+				"CODE_SIGN_STYLE" = "Automatic";
+				"CODE_SIGN_INJECT_BASE_ENTITLEMENTS" = "NO";
+				"LD_RUNPATH_SEARCH_PATHS" = ("$(inherited)", "@executable_path/../Frameworks",);
+				"PRODUCT_NAME" = "BackupCron";
+			};
+			"name" = "Release";
+		};
+		"000000000000000000000017" = {
+			"path" = "Sources/BackupFlow/Resources/zh-Hans.lproj/Localizable.strings";
+			"isa" = "PBXFileReference";
+			"name" = "zh-Hans";
+			"lastKnownFileType" = "text.plist.strings";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"000000000000000000000024" = {
+			"isa" = "PBXGroup";
+			"name" = "Configuration";
+			"children" = ("00000000000000000000001C", );
+			"sourceTree" = "<group>";
+		};
+		"000000000000000000000031" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "000000000000000000000005";
+		};
+		"00000000000000000000001F" = {
+			"path" = "BackupCron.app";
+			"isa" = "PBXFileReference";
+			"includeInIndex" = "0";
+			"explicitFileType" = "wrapper.application";
+			"sourceTree" = "BUILT_PRODUCTS_DIR";
+		};
+		"000000000000000000000018" = {
+			"path" = "Sources/BackupFlow/Resources/ja.lproj/Localizable.strings";
+			"isa" = "PBXFileReference";
+			"name" = "ja";
+			"lastKnownFileType" = "text.plist.strings";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"000000000000000000000032" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "000000000000000000000006";
+		};
+		"00000000000000000000002C" = {
+			"isa" = "XCConfigurationList";
+			"defaultConfigurationIsVisible" = "0";
+			"defaultConfigurationName" = "Release";
+			"buildConfigurations" = ("00000000000000000000002A", "00000000000000000000002B",);
+		};
+		"00000000000000000000002D" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "000000000000000000000001";
+		};
+		"000000000000000000000019" = {
+			"path" = "Sources/BackupFlow/Resources/ko.lproj/Localizable.strings";
+			"isa" = "PBXFileReference";
+			"name" = "ko";
+			"lastKnownFileType" = "text.plist.strings";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"000000000000000000000026" = {
+			"isa" = "PBXGroup";
+			"sourceTree" = "<group>";
+			"children" = ("000000000000000000000022", "000000000000000000000023", "000000000000000000000024", "000000000000000000000021",);
+		};
+		"000000000000000000000033" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "000000000000000000000007";
+		};
+		"00000000000000000000003A" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "00000000000000000000000E";
+		};
+		"000000000000000000000040" = {
+			"buildConfigurationList" = "00000000000000000000002C";
+			"productReference" = "00000000000000000000001F";
+			"productType" = "com.apple.product-type.application";
+			"productName" = "BackupCron";
+			"isa" = "PBXNativeTarget";
+			"buildPhases" = ("00000000000000000000003C", "00000000000000000000003D", "00000000000000000000003F",);
+			"dependencies" = ();
+			"name" = "BackupCron";
+			"buildRules" = ();
+		};
+		"00000000000000000000002E" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "000000000000000000000002";
+		};
+		"000000000000000000000034" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "000000000000000000000008";
+		};
+		"000000000000000000000027" = {
+			"isa" = "XCBuildConfiguration";
+			"buildSettings" = {
+				"ONLY_ACTIVE_ARCH" = "YES";
+				"SWIFT_ACTIVE_COMPILATION_CONDITIONS" = "DEBUG $(inherited)";
+				"DEBUG_INFORMATION_FORMAT" = "dwarf";
+				"CLANG_ENABLE_MODULES" = "YES";
+				"GCC_C_LANGUAGE_STANDARD" = "gnu17";
+				"MACOSX_DEPLOYMENT_TARGET" = "14.0";
+				"ENABLE_TESTABILITY" = "YES";
+				"GCC_OPTIMIZATION_LEVEL" = "0";
+				"SWIFT_OPTIMIZATION_LEVEL" = "-Onone";
+				"SDKROOT" = "macosx";
+				"SWIFT_VERSION" = "5.0";
+				"CLANG_ENABLE_OBJC_ARC" = "YES";
+			};
+			"name" = "Debug";
+		};
+		"00000000000000000000003B" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "00000000000000000000000F";
+		};
+		"00000000000000000000002F" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "000000000000000000000003";
+		};
+		"000000000000000000000028" = {
+			"isa" = "XCBuildConfiguration";
+			"buildSettings" = {
+				"CLANG_ENABLE_MODULES" = "YES";
+				"DEBUG_INFORMATION_FORMAT" = "dwarf-with-dsym";
+				"SWIFT_COMPILATION_MODE" = "wholemodule";
+				"MACOSX_DEPLOYMENT_TARGET" = "14.0";
+				"SWIFT_VERSION" = "5.0";
+				"SDKROOT" = "macosx";
+				"SWIFT_OPTIMIZATION_LEVEL" = "-O";
+				"GCC_C_LANGUAGE_STANDARD" = "gnu17";
+				"CLANG_ENABLE_OBJC_ARC" = "YES";
+			};
+			"name" = "Release";
+		};
+		"000000000000000000000035" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "000000000000000000000009";
+		};
+		"00000000000000000000003C" = {
+			"isa" = "PBXSourcesBuildPhase";
+			"buildActionMask" = "2147483647";
+			"files" = ("00000000000000000000002D", "00000000000000000000002E", "00000000000000000000002F", "000000000000000000000030", "000000000000000000000031", "000000000000000000000032", "000000000000000000000033", "000000000000000000000034", "000000000000000000000035", "000000000000000000000036", "000000000000000000000037", "00000000000000000000003A", "00000000000000000000003B", "000000000000000000000058",);
+			"runOnlyForDeploymentPostprocessing" = "0";
+		};
+		"00000000000000000000003D" = {
+			"isa" = "PBXFrameworksBuildPhase";
+			"buildActionMask" = "2147483647";
+			"files" = ();
+			"runOnlyForDeploymentPostprocessing" = "0";
+		};
+		"000000000000000000000029" = {
+			"isa" = "XCConfigurationList";
+			"defaultConfigurationIsVisible" = "0";
+			"defaultConfigurationName" = "Release";
+			"buildConfigurations" = ("000000000000000000000027", "000000000000000000000028",);
+		};
+		"000000000000000000000001" = {
+			"path" = "Sources/BackupFlow/BackupEngine.swift";
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"000000000000000000000036" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "00000000000000000000000A";
+		};
+	};
+	"rootObject" = "00000000000000000000004C";
+}

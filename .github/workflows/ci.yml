@@ -1,0 +1,38 @@
+name: macOS CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-and-build:
+    runs-on: macos-15
+    timeout-minutes: 25
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Show toolchain
+        run: |
+          xcodebuild -version
+          swift --version
+      - name: Run tests
+        run: swift test
+      - name: Build packaged app
+        run: zsh scripts/build-app.sh
+      - name: Upload local development build
+        uses: actions/upload-artifact@v7
+        with:
+          name: BackupCron-macos-${{ runner.arch }}
+          path: .build/BackupCron.zip
+          if-no-files-found: error
+          retention-days: 14

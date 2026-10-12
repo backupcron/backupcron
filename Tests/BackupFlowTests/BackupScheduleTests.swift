@@ -317,7 +317,9 @@ struct DatabaseSelectionTests {
         #expect(try sqlite(restored, "SELECT rowid,_rowid_,hex(oid) FROM aliases;") == "keep|2|2200\n")
         #expect(try sqlite(restored, "PRAGMA user_version; PRAGMA application_id; PRAGMA integrity_check; SELECT COUNT(*) FROM sqlite_schema WHERE name='logs';") == "37\n1195524435\nok\n0\n")
         #expect(try sqlite(restored, "INSERT INTO serials(value) VALUES('new'); SELECT id FROM serials WHERE value='new';") == "901\n")
-        #expect(try sqlite(restored, "INSERT INTO documents(rowid,body) VALUES(700001,'new needle'); SELECT rowid,body FROM search WHERE search MATCH 'new';") == "700001|new needle\n")
+        // This disposable schema intentionally uses an FTS5 table in a trigger.
+        // Older macOS SQLite builds require explicit trust to execute it.
+        #expect(try sqlite(restored, "PRAGMA trusted_schema=ON; INSERT INTO documents(rowid,body) VALUES(700001,'new needle'); SELECT rowid,body FROM search WHERE search MATCH 'new';") == "700001|new needle\n")
         #expect(try sqlite(restored, "SELECT id FROM spatial WHERE minX<3; INSERT INTO spatial VALUES(72,4,5,6,7); SELECT COUNT(*) FROM spatial;") == "71\n2\n")
         #expect(try sqlite(restored, "ALTER TABLE aliases RENAME COLUMN rowid TO explicit_name; SELECT rowid FROM aliases;") == "2\n")
         #expect(try Data(contentsOf: source) == before)

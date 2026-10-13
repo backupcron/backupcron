@@ -95,6 +95,10 @@ The script creates `.build/BackupCron.app` and `.build/BackupCron.zip`, and
 checks the signature after unpacking the ZIP. Use the ZIP when transferring
 the build: cloud-synced folders can add metadata to an app bundle.
 
+To create the DMG with the installation background, install `dmgbuild==1.6.7`
+in a Python 3.10+ environment and run `zsh scripts/build-dmg.sh`. You can also
+pass the path to an existing `.app` as the first argument.
+
 You can also open `Package.swift` or `BackupCron.xcodeproj` in Xcode, or run:
 
 ```sh

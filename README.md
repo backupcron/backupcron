@@ -6,7 +6,7 @@ subscriptions or a limit on the number of jobs.
 
 ## Download
 
-[Download BackupCron 1.2 for macOS](https://github.com/backupcron/backupcron/releases/download/v1.2/BackupCron-1.2-universal.dmg)
+[Download BackupCron 1.2 for macOS](https://github.com/backupcron/backupcron/releases/download/v1.2/BackupCron-1.2-universal-installer.dmg)
 
 Universal build for Apple Silicon and Intel; requires macOS 14 or later.
 Open the DMG and drag BackupCron into Applications.

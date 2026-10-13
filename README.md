@@ -4,6 +4,17 @@ A free, open-source native macOS app for scheduled backups of files,
 projects and databases. All features are available without purchases,
 subscriptions or a limit on the number of jobs.
 
+## Download
+
+[Download BackupCron 1.2 for macOS](https://github.com/backupcron/backupcron/releases/download/v1.2/BackupCron-1.2-universal.dmg)
+
+Universal build for Apple Silicon and Intel; requires macOS 14 or later.
+Open the DMG and drag BackupCron into Applications.
+
+This build is ad hoc signed and is not notarized by Apple. For first-launch
+instructions and the SHA-256 checksum, see the
+[release page](https://github.com/backupcron/backupcron/releases/tag/v1.2).
+
 ## Screenshots
 
 These screenshots use demo data. The successful backup results shown come from actual runs.

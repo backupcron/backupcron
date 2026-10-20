@@ -311,3 +311,17 @@
 "database.space_insufficient" = "Spazio insufficiente in %@: spazio stimato %@, disponibile %@.";
 "database.compacting" = "Riduzione della copia SQLite mantenendo gli identificatori delle righe…";
 "database.copying_table" = "Copia di %@: %lld righe";
+
+"settings_backup.startup" = "Avvio automatico";
+"settings_backup.title" = "Backup delle impostazioni";
+"settings_backup.automatic_icloud" = "Salva automaticamente su iCloud Drive";
+"settings_backup.automatic" = "Salva le impostazioni automaticamente";
+"settings_backup.choose_folder" = "Scegli cartella…";
+"settings_backup.backup_now" = "Crea backup";
+"settings_backup.restore" = "Ripristina impostazioni…";
+"settings_backup.saved" = "Copia salvata: %@";
+"settings_backup.invalid" = "Questo backup delle impostazioni è danneggiato o non supportato.";
+"settings_backup.icloud_required" = "Scegli una cartella in iCloud Drive.";
+"settings_backup.running" = "Attendi la fine dei backup in corso prima del ripristino.";
+"settings_backup.confirm_restore" = "Sostituire le attività e le impostazioni attuali? Verrà salvata una copia di recupero locale. Password e avvio automatico non vengono trasferiti. La pianificazione sarà sospesa; controlla percorsi e password prima di riattivarla.";
+"settings_backup.restored" = "Impostazioni ripristinate. La pianificazione è sospesa. Controlla percorsi e password prima di riattivarla.";

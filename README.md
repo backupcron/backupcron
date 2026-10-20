@@ -6,14 +6,14 @@ subscriptions or a limit on the number of jobs.
 
 ## Download
 
-[Download BackupCron 1.2 for macOS](https://github.com/backupcron/backupcron/releases/download/v1.2/BackupCron-1.2-universal-installer.dmg)
+[Download BackupCron 1.3 for macOS](https://github.com/backupcron/backupcron/releases/download/v1.3/BackupCron-1.3-universal-installer.dmg)
 
 Universal build for Apple Silicon and Intel; requires macOS 14 or later.
 Open the DMG and drag BackupCron into Applications.
 
 This build is ad hoc signed and is not notarized by Apple. For first-launch
 instructions and the SHA-256 checksum, see the
-[release page](https://github.com/backupcron/backupcron/releases/tag/v1.2).
+[release page](https://github.com/backupcron/backupcron/releases/tag/v1.3).
 
 ## Screenshots
 
@@ -71,6 +71,8 @@ This SQLite example keeps customers and orders while excluding request logs and 
 - Cancellation that removes unfinished results; verified outputs are published
   without overwriting existing backups.
 - Database passwords in macOS Keychain and persistent access to selected paths.
+- Automatic settings and job backups to a selected iCloud Drive folder.
+- Manual settings backup and restore, with a local recovery copy before replacement.
 - Ten interface languages, selected from the macOS language settings.
 
 ## Requirements
@@ -137,6 +139,18 @@ The local Keychain password is not transmitted in this mode.
 New project jobs include `.git`. Worktrees, submodules and external Git object
 stores may depend on paths outside the project folder. A project copy is not
 an atomic Git snapshot and does not include a separate database automatically.
+
+## Settings backup and restore
+
+In Settings, choose a folder in iCloud Drive and enable automatic settings
+backup, or use **Back up now**. Each copy is a separate JSON file. Use
+**Restore settings** to select a copy; the current settings are saved locally
+in `Application Support/BackupCron/Settings recovery` before replacement.
+
+Copies contain jobs and app preferences. Passwords, file-access permissions,
+run history and system startup registration are not transferred. Restoration
+pauses the scheduler; check paths, access permissions and passwords before
+enabling it again. iCloud Drive manages uploading the saved files.
 
 ## Tests
 

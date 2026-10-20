@@ -4,7 +4,9 @@ import Foundation
 
 @MainActor
 final class BackupStore: ObservableObject {
-    @Published private(set) var jobs: [BackupJob] = []
+    @Published private(set) var jobs: [BackupJob] = [] {
+        didSet { settingsBackup.schedule() }
+    }
     @Published private(set) var history: [BackupRun] = []
     @Published private(set) var runningJobIDs: Set<UUID> = []
     @Published private(set) var progressByJob: [UUID: Double] = [:]
@@ -13,8 +15,11 @@ final class BackupStore: ObservableObject {
     @Published private(set) var startedAtByJob: [UUID: Date] = [:]
     @Published var errorMessage: String?
     @Published var schedulerEnabled = true {
-        didSet { UserDefaults.standard.set(schedulerEnabled, forKey: "schedulerEnabled") }
+        didSet { defaults.set(schedulerEnabled, forKey: "schedulerEnabled"); settingsBackup.schedule() }
     }
+
+    let settingsBackup: SettingsBackupController
+    private let defaults: UserDefaults
 
     private let engine = BackupEngine()
     private var schedulerTimer: Timer?
@@ -24,17 +29,49 @@ final class BackupStore: ObservableObject {
 
     init(
         stateDirectory: URL? = nil,
+        defaults: UserDefaults = .standard,
         passwordWriter: @escaping (String, UUID) throws -> Void = { try KeychainStore.setPassword($0, for: $1) }
     ) {
         self.passwordWriter = passwordWriter
+        self.defaults = defaults
+        settingsBackup = SettingsBackupController(defaults: defaults)
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
         let directory = stateDirectory ?? base.appendingPathComponent("BackupCron", isDirectory: true)
         stateURL = directory.appendingPathComponent("state.json")
         if stateDirectory == nil {
             migrateLegacyStateIfNeeded(from: base.appendingPathComponent("BackupFlow", isDirectory: true))
         }
-        schedulerEnabled = UserDefaults.standard.object(forKey: "schedulerEnabled") as? Bool ?? true
+        schedulerEnabled = defaults.object(forKey: "schedulerEnabled") as? Bool ?? true
         load()
+        if stateDirectory == nil {
+            settingsBackup.start { [weak self] in
+                SettingsArchive(jobs: self?.jobs ?? [], preferences: .init(defaults: defaults, schedulerEnabled: self?.schedulerEnabled ?? false))
+            }
+        }
+    }
+
+    func restoreSettings(_ archive: SettingsArchive) throws {
+        guard runningJobIDs.isEmpty else { throw SettingsBackupError.running }
+        let validated = try SettingsArchive.decode(archive.encoded())
+        let recoveryDirectory = stateURL.deletingLastPathComponent().appendingPathComponent("Settings recovery", isDirectory: true)
+        try FileManager.default.createDirectory(at: recoveryDirectory, withIntermediateDirectories: true)
+        _ = try SettingsArchiveFile.write(
+            SettingsArchive(jobs: jobs, preferences: .init(defaults: defaults, schedulerEnabled: schedulerEnabled)),
+            to: recoveryDirectory
+        )
+        let restoredJobs = SettingsArchive(jobs: validated.jobs, preferences: validated.preferences).jobs
+        try writeState(jobs: restoredJobs)
+        schedulerEnabled = false
+        jobs = restoredJobs
+        let preferences = validated.preferences
+        defaults.set(preferences.notifyOnSuccess, forKey: BackupNotifications.notifyOnSuccessKey)
+        defaults.set(preferences.notifyOnFailure, forKey: BackupNotifications.notifyOnFailureKey)
+        defaults.set(preferences.soundEnabled, forKey: BackupSoundPreferences.enabledKey)
+        defaults.set(preferences.soundVolume, forKey: BackupSoundPreferences.volumeKey)
+        if defaults === UserDefaults.standard {
+            BackupAudioFeedback.shared.setEnabled(preferences.soundEnabled)
+            BackupAudioFeedback.shared.setVolume(preferences.soundVolume)
+        }
     }
 
     var successfulRuns: Int { history.filter { $0.status == .success }.count }

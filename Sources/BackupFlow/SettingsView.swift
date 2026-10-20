@@ -1,5 +1,6 @@
 import ServiceManagement
 import SwiftUI
+import UniformTypeIdentifiers
 import UserNotifications
 
 enum NotificationPermissionState: Equatable {
@@ -59,6 +60,8 @@ final class BackupNotificationSettingsController: ObservableObject {
     }
 
     func refresh() async {
+        notifyOnSuccess = defaults.bool(forKey: BackupNotifications.notifyOnSuccessKey)
+        notifyOnFailure = defaults.bool(forKey: BackupNotifications.notifyOnFailureKey)
         let state = await permissionProvider.authorizationState()
         permissionDenied = state == .denied && (notifyOnSuccess || notifyOnFailure)
         permissionUnavailable = state == .unavailable
@@ -237,7 +240,7 @@ final class LaunchAtLoginController: ObservableObject {
                 if service.status == .notRegistered || service.status == .notFound {
                     try service.register()
                 }
-            } else if service.status != .notRegistered {
+            } else if service.status == .enabled || service.status == .requiresApproval {
                 try service.unregister()
             }
         } catch {
@@ -253,6 +256,7 @@ final class LaunchAtLoginController: ObservableObject {
 
 struct SettingsView: View {
     @EnvironmentObject private var store: BackupStore
+    @Environment(\.scenePhase) private var scenePhase
     @StateObject private var launchAtLogin = LaunchAtLoginController()
     @StateObject private var notifications = BackupNotificationSettingsController()
     @ObservedObject private var audio = BackupAudioFeedback.shared
@@ -264,7 +268,8 @@ struct SettingsView: View {
                 Text(L10n.text("settings.schedule_note"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
-
+            }
+            Section(L10n.text("settings_backup.startup")) {
                 Toggle(
                     L10n.text("settings.launch_at_login"),
                     isOn: Binding(
@@ -272,10 +277,6 @@ struct SettingsView: View {
                         set: { launchAtLogin.setEnabled($0) }
                     )
                 )
-                Text(L10n.text("settings.launch_at_login_note"))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-
                 if launchAtLogin.requiresApproval {
                     HStack {
                         Label(L10n.text("settings.launch_requires_approval"), systemImage: "exclamationmark.triangle.fill")
@@ -384,6 +385,10 @@ struct SettingsView: View {
                 LabeledContent(L10n.text("settings.settings_history"), value: "Application Support/BackupCron")
                 LabeledContent(L10n.text("settings.passwords"), value: L10n.text("settings.keychain"))
             }
+            SettingsBackupSection(controller: store.settingsBackup) {
+                try store.restoreSettings($0)
+                Task { await notifications.refresh() }
+            }
         }
         .formStyle(.grouped)
         .scrollContentBackground(.hidden)
@@ -391,6 +396,72 @@ struct SettingsView: View {
         .frame(width: 560, height: 620)
         .padding()
         .onAppear { launchAtLogin.refresh() }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active {
+                launchAtLogin.refresh()
+                Task { await notifications.refresh() }
+            }
+        }
         .task { await notifications.refresh() }
+    }
+}
+
+private struct SettingsBackupSection: View {
+    @ObservedObject var controller: SettingsBackupController
+    let restore: (SettingsArchive) throws -> Void
+    @State private var pendingArchive: SettingsArchive?
+    @State private var confirmRestore = false
+    @State private var isReading = false
+
+    var body: some View {
+        Section(L10n.text("settings_backup.title")) {
+            Toggle(L10n.text("settings_backup.automatic_icloud"), isOn: Binding(
+                get: { controller.enabled }, set: { controller.setEnabled($0) }
+            ))
+            if let path = controller.folderPath {
+                Text(path).font(.caption).foregroundStyle(.secondary).textSelection(.enabled)
+            }
+            HStack {
+                Button(L10n.text("settings_backup.choose_folder")) { controller.chooseFolder() }
+                Button(L10n.text("settings_backup.backup_now")) { Task { await controller.backup() } }
+                    .disabled(controller.folderPath == nil)
+                Button(L10n.text("settings_backup.restore")) { chooseArchive() }
+            }
+            .disabled(controller.isBusy || isReading)
+            if let error = controller.errorMessage {
+                Label(error, systemImage: "exclamationmark.triangle").font(.caption).foregroundStyle(AppTheme.danger)
+            } else if let message = controller.message {
+                Text(message).font(.caption).foregroundStyle(.secondary)
+            }
+        }
+        .alert(L10n.text("settings_backup.restore"), isPresented: $confirmRestore) {
+            Button(L10n.text("common.cancel"), role: .cancel) { pendingArchive = nil }
+            Button(L10n.text("settings_backup.restore"), role: .destructive) {
+                guard let archive = pendingArchive else { return }
+                do {
+                    try restore(archive)
+                    controller.errorMessage = nil
+                    controller.message = L10n.text("settings_backup.restored")
+                } catch { controller.errorMessage = error.localizedDescription }
+                pendingArchive = nil
+            }
+        } message: { Text(L10n.text("settings_backup.confirm_restore")) }
+    }
+
+    private func chooseArchive() {
+        let panel = NSOpenPanel()
+        panel.allowedContentTypes = [.json]
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = false
+        if let path = controller.folderPath { panel.directoryURL = URL(fileURLWithPath: path) }
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        isReading = true
+        Task {
+            defer { isReading = false }
+            do {
+                pendingArchive = try await controller.loadForRestore(url)
+                confirmRestore = true
+            } catch { controller.errorMessage = error.localizedDescription }
+        }
     }
 }

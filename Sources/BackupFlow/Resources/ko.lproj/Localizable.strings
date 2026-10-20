@@ -311,3 +311,17 @@
 "database.space_insufficient" = "%@의 공간이 부족합니다. 예상 필요 공간 %@, 사용 가능 %@.";
 "database.compacting" = "행 ID를 유지하면서 SQLite 복사본을 축소하는 중…";
 "database.copying_table" = "%@ 복사 중: %lld행";
+
+"settings_backup.startup" = "자동 시작";
+"settings_backup.title" = "설정 백업";
+"settings_backup.automatic_icloud" = "iCloud Drive에 자동 백업";
+"settings_backup.automatic" = "설정 자동 백업";
+"settings_backup.choose_folder" = "폴더 선택…";
+"settings_backup.backup_now" = "지금 백업";
+"settings_backup.restore" = "설정 복원…";
+"settings_backup.saved" = "사본 저장됨: %@";
+"settings_backup.invalid" = "이 설정 백업이 손상되었거나 지원하지 않는 형식입니다.";
+"settings_backup.icloud_required" = "iCloud Drive의 폴더를 선택하세요.";
+"settings_backup.running" = "실행 중인 백업이 끝난 후 복원하세요.";
+"settings_backup.confirm_restore" = "현재 작업과 설정을 교체할까요? 복원 전 사본이 로컬에 저장됩니다. 암호와 자동 시작 설정은 이전되지 않습니다. 일정이 일시 정지됩니다. 경로와 암호를 확인한 후 활성화하세요.";
+"settings_backup.restored" = "설정이 복원되었습니다. 일정이 일시 정지되었습니다. 경로와 암호를 확인한 후 활성화하세요.";

@@ -324,3 +324,17 @@
 "database.space_insufficient" = "Недостаточно места в %@: потребуется примерно %@, свободно %@.";
 "database.compacting" = "Уменьшение копии SQLite с сохранением идентификаторов строк…";
 "database.copying_table" = "Копирование %@: %lld строк";
+
+"settings_backup.startup" = "Автозапуск";
+"settings_backup.title" = "Резервная копия настроек";
+"settings_backup.automatic_icloud" = "Автоматически копировать в iCloud Drive";
+"settings_backup.automatic" = "Автоматически копировать настройки";
+"settings_backup.choose_folder" = "Выбрать папку…";
+"settings_backup.backup_now" = "Создать копию";
+"settings_backup.restore" = "Восстановить настройки…";
+"settings_backup.saved" = "Копия сохранена: %@";
+"settings_backup.invalid" = "Копия настроек повреждена или имеет неподдерживаемый формат.";
+"settings_backup.icloud_required" = "Выберите папку в iCloud Drive.";
+"settings_backup.running" = "Дождитесь завершения запущенных заданий перед восстановлением.";
+"settings_backup.confirm_restore" = "Заменить текущие задания и настройки? Предыдущие настройки будут сохранены в локальную копию. Пароли и автозапуск не переносятся. Расписание будет приостановлено: проверьте пути и пароли перед включением.";
+"settings_backup.restored" = "Настройки восстановлены. Расписание приостановлено. Проверьте пути и пароли перед включением.";

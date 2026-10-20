@@ -311,3 +311,17 @@
 "database.space_insufficient" = "Espaço insuficiente em %@: necessidade estimada %@, disponível %@.";
 "database.compacting" = "Reduzindo a cópia SQLite e preservando os identificadores das linhas…";
 "database.copying_table" = "Copiando %@: %lld linhas";
+
+"settings_backup.startup" = "Inicialização";
+"settings_backup.title" = "Backup das configurações";
+"settings_backup.automatic_icloud" = "Copiar automaticamente para o iCloud Drive";
+"settings_backup.automatic" = "Copiar configurações automaticamente";
+"settings_backup.choose_folder" = "Escolher pasta…";
+"settings_backup.backup_now" = "Criar backup";
+"settings_backup.restore" = "Restaurar configurações…";
+"settings_backup.saved" = "Cópia salva: %@";
+"settings_backup.invalid" = "Este backup de configurações está danificado ou não é compatível.";
+"settings_backup.icloud_required" = "Escolha uma pasta no iCloud Drive.";
+"settings_backup.running" = "Aguarde o término dos backups em andamento antes de restaurar.";
+"settings_backup.confirm_restore" = "Substituir as tarefas e configurações atuais? Uma cópia de recuperação será salva localmente. Senhas e inicialização automática não são transferidas. O agendamento será pausado; confira os caminhos e as senhas antes de ativá-lo.";
+"settings_backup.restored" = "Configurações restauradas. O agendamento está pausado. Confira os caminhos e as senhas antes de ativá-lo.";

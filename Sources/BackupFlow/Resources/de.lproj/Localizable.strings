@@ -311,3 +311,17 @@
 "database.space_insufficient" = "Nicht genug Platz in %@: geschätzter Bedarf %@, verfügbar %@.";
 "database.compacting" = "SQLite-Kopie wird unter Beibehaltung der Zeilen-IDs verkleinert…";
 "database.copying_table" = "%@ wird kopiert: %lld Zeilen";
+
+"settings_backup.startup" = "Autostart";
+"settings_backup.title" = "Einstellungen sichern";
+"settings_backup.automatic_icloud" = "Automatisch in iCloud Drive sichern";
+"settings_backup.automatic" = "Einstellungen automatisch sichern";
+"settings_backup.choose_folder" = "Ordner wählen…";
+"settings_backup.backup_now" = "Jetzt sichern";
+"settings_backup.restore" = "Einstellungen wiederherstellen…";
+"settings_backup.saved" = "Kopie gespeichert: %@";
+"settings_backup.invalid" = "Diese Einstellungssicherung ist beschädigt oder wird nicht unterstützt.";
+"settings_backup.icloud_required" = "Wählen Sie einen Ordner in iCloud Drive.";
+"settings_backup.running" = "Warten Sie vor der Wiederherstellung auf das Ende laufender Sicherungen.";
+"settings_backup.confirm_restore" = "Aktuelle Aufträge und Einstellungen ersetzen? Eine Wiederherstellungskopie wird lokal gespeichert. Passwörter und Autostart werden nicht übertragen. Der Zeitplan wird pausiert; prüfen Sie vor dem Aktivieren Pfade und Passwörter.";
+"settings_backup.restored" = "Einstellungen wiederhergestellt. Der Zeitplan ist pausiert. Prüfen Sie vor dem Aktivieren Pfade und Passwörter.";

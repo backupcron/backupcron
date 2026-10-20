@@ -311,3 +311,17 @@
 "database.space_insufficient" = "%@ 空间不足：预计需要 %@，可用 %@。";
 "database.compacting" = "正在压缩 SQLite 副本并保留行标识符…";
 "database.copying_table" = "正在复制 %@：%lld 行";
+
+"settings_backup.startup" = "自动启动";
+"settings_backup.title" = "设置备份";
+"settings_backup.automatic_icloud" = "自动备份到 iCloud 云盘";
+"settings_backup.automatic" = "自动备份设置";
+"settings_backup.choose_folder" = "选择文件夹…";
+"settings_backup.backup_now" = "立即备份";
+"settings_backup.restore" = "恢复设置…";
+"settings_backup.saved" = "副本已保存：%@";
+"settings_backup.invalid" = "此设置备份已损坏或格式不受支持。";
+"settings_backup.icloud_required" = "请选择 iCloud 云盘中的文件夹。";
+"settings_backup.running" = "请等待正在运行的备份完成后再恢复。";
+"settings_backup.confirm_restore" = "替换当前任务和设置？恢复前会在本地保存一份副本。密码和自动启动设置不会转移。计划将暂停，请检查路径和密码后再启用。";
+"settings_backup.restored" = "设置已恢复，计划已暂停。请检查路径和密码后再启用。";

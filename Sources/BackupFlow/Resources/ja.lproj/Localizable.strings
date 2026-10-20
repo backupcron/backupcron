@@ -311,3 +311,17 @@
 "database.space_insufficient" = "%@ の空き容量が不足しています。推定必要容量 %@、空き容量 %@。";
 "database.compacting" = "行IDを保持して SQLite コピーを縮小しています…";
 "database.copying_table" = "%@ をコピー中：%lld 行";
+
+"settings_backup.startup" = "自動起動";
+"settings_backup.title" = "設定のバックアップ";
+"settings_backup.automatic_icloud" = "iCloud Driveに自動バックアップ";
+"settings_backup.automatic" = "設定を自動バックアップ";
+"settings_backup.choose_folder" = "フォルダを選択…";
+"settings_backup.backup_now" = "今すぐバックアップ";
+"settings_backup.restore" = "設定を復元…";
+"settings_backup.saved" = "コピーを保存しました：%@";
+"settings_backup.invalid" = "この設定バックアップは破損しているか、未対応の形式です。";
+"settings_backup.icloud_required" = "iCloud Drive内のフォルダを選択してください。";
+"settings_backup.running" = "実行中のバックアップが完了してから復元してください。";
+"settings_backup.confirm_restore" = "現在のジョブと設定を置き換えますか？復元前のコピーをローカルに保存します。パスワードと自動起動設定は引き継がれません。スケジュールは一時停止されます。パスとパスワードを確認してから有効にしてください。";
+"settings_backup.restored" = "設定を復元しました。スケジュールは一時停止中です。パスとパスワードを確認してから有効にしてください。";

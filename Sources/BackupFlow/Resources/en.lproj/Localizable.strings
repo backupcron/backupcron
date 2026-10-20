@@ -324,3 +324,17 @@
 "database.space_insufficient" = "Insufficient space at %@: estimated need %@, available %@.";
 "database.compacting" = "Compacting the SQLite copy while preserving row IDs…";
 "database.copying_table" = "Copying %@: %lld rows";
+
+"settings_backup.startup" = "Startup";
+"settings_backup.title" = "Settings backup";
+"settings_backup.automatic_icloud" = "Automatically back up to iCloud Drive";
+"settings_backup.automatic" = "Automatically back up settings";
+"settings_backup.choose_folder" = "Choose folder…";
+"settings_backup.backup_now" = "Back up now";
+"settings_backup.restore" = "Restore settings…";
+"settings_backup.saved" = "Copy saved: %@";
+"settings_backup.invalid" = "This settings backup is damaged or unsupported.";
+"settings_backup.icloud_required" = "Choose a folder in iCloud Drive.";
+"settings_backup.running" = "Wait for running backups to finish before restoring.";
+"settings_backup.confirm_restore" = "Replace current jobs and settings? A recovery copy will be saved locally. Passwords and startup registration are not included. The scheduler will be paused; check paths and passwords before enabling it.";
+"settings_backup.restored" = "Settings restored. The scheduler is paused. Check paths and passwords before enabling it.";

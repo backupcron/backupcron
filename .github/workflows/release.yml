@@ -73,6 +73,7 @@ jobs:
             .build/*universal-installer.dmg
             .build/SHA256SUMS.txt
           if-no-files-found: error
+          include-hidden-files: true
       - name: Publish verified release
         env:
           GH_TOKEN: ${{ github.token }}

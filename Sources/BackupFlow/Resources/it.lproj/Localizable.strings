@@ -325,3 +325,6 @@
 "settings_backup.running" = "Attendi la fine dei backup in corso prima del ripristino.";
 "settings_backup.confirm_restore" = "Sostituire le attività e le impostazioni attuali? Verrà salvata una copia di recupero locale. Password e avvio automatico non vengono trasferiti. La pianificazione sarà sospesa; controlla percorsi e password prima di riattivarla.";
 "settings_backup.restored" = "Impostazioni ripristinate. La pianificazione è sospesa. Controlla percorsi e password prima di riattivarla.";
+
+"menu.open" = "Apri BackupCron";
+"menu.quit" = "Esci da BackupCron";

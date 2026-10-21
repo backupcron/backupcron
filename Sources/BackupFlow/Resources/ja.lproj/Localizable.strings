@@ -325,3 +325,6 @@
 "settings_backup.running" = "実行中のバックアップが完了してから復元してください。";
 "settings_backup.confirm_restore" = "現在のジョブと設定を置き換えますか？復元前のコピーをローカルに保存します。パスワードと自動起動設定は引き継がれません。スケジュールは一時停止されます。パスとパスワードを確認してから有効にしてください。";
 "settings_backup.restored" = "設定を復元しました。スケジュールは一時停止中です。パスとパスワードを確認してから有効にしてください。";
+
+"menu.open" = "BackupCron を開く";
+"menu.quit" = "BackupCron を終了";

@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 @main
@@ -9,7 +10,7 @@ struct BackupCronApp: App {
     }
 
     var body: some Scene {
-        WindowGroup {
+        Window("BackupCron", id: "main") {
             ContentView()
                 .environmentObject(store)
                 .frame(minWidth: 900, minHeight: 620)
@@ -32,6 +33,27 @@ struct BackupCronApp: App {
             SettingsView()
                 .environmentObject(store)
         }
+
+        MenuBarExtra("BackupCron", systemImage: "externaldrive.badge.timemachine") {
+            BackupCronMenu()
+        }
+        .menuBarExtraStyle(.menu)
+    }
+}
+
+private struct BackupCronMenu: View {
+    @Environment(\.openWindow) private var openWindow
+
+    var body: some View {
+        Button(L10n.text("menu.open")) {
+            openWindow(id: "main")
+            NSApp.activate(ignoringOtherApps: true)
+        }
+        Divider()
+        Button(L10n.text("menu.quit")) {
+            NSApp.terminate(nil)
+        }
+        .keyboardShortcut("q")
     }
 }
 

@@ -325,3 +325,6 @@
 "settings_backup.running" = "Warten Sie vor der Wiederherstellung auf das Ende laufender Sicherungen.";
 "settings_backup.confirm_restore" = "Aktuelle Aufträge und Einstellungen ersetzen? Eine Wiederherstellungskopie wird lokal gespeichert. Passwörter und Autostart werden nicht übertragen. Der Zeitplan wird pausiert; prüfen Sie vor dem Aktivieren Pfade und Passwörter.";
 "settings_backup.restored" = "Einstellungen wiederhergestellt. Der Zeitplan ist pausiert. Prüfen Sie vor dem Aktivieren Pfade und Passwörter.";
+
+"menu.open" = "BackupCron öffnen";
+"menu.quit" = "BackupCron beenden";

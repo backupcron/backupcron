@@ -73,6 +73,7 @@ This SQLite example keeps customers and orders while excluding request logs and 
 - Database passwords in macOS Keychain and persistent access to selected paths.
 - Automatic settings and job backups to a selected iCloud Drive folder.
 - Manual settings backup and restore, with a local recovery copy before replacement.
+- A menu bar icon for opening the window and quitting BackupCron.
 - Ten interface languages, selected from the macOS language settings.
 
 ## Requirements

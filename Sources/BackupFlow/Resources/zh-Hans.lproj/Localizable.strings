@@ -325,3 +325,6 @@
 "settings_backup.running" = "请等待正在运行的备份完成后再恢复。";
 "settings_backup.confirm_restore" = "替换当前任务和设置？恢复前会在本地保存一份副本。密码和自动启动设置不会转移。计划将暂停，请检查路径和密码后再启用。";
 "settings_backup.restored" = "设置已恢复，计划已暂停。请检查路径和密码后再启用。";
+
+"menu.open" = "打开 BackupCron";
+"menu.quit" = "退出 BackupCron";

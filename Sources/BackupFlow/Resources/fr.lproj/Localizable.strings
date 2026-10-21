@@ -325,3 +325,6 @@
 "settings_backup.running" = "Attendez la fin des sauvegardes en cours avant de restaurer.";
 "settings_backup.confirm_restore" = "Remplacer les tâches et réglages actuels ? Une copie de récupération sera enregistrée localement. Les mots de passe et le démarrage automatique ne sont pas transférés. La planification sera suspendue ; vérifiez les chemins et mots de passe avant de la réactiver.";
 "settings_backup.restored" = "Réglages restaurés. La planification est suspendue. Vérifiez les chemins et mots de passe avant de la réactiver.";
+
+"menu.open" = "Ouvrir BackupCron";
+"menu.quit" = "Quitter BackupCron";

@@ -325,3 +325,6 @@
 "settings_backup.running" = "Espera a que terminen las copias en curso antes de restaurar.";
 "settings_backup.confirm_restore" = "¿Reemplazar las tareas y los ajustes actuales? Se guardará una copia de recuperación local. Las contraseñas y el inicio automático no se transfieren. La programación se pausará; revisa las rutas y contraseñas antes de activarla.";
 "settings_backup.restored" = "Ajustes restaurados. La programación está pausada. Revisa las rutas y contraseñas antes de activarla.";
+
+"menu.open" = "Abrir BackupCron";
+"menu.quit" = "Salir de BackupCron";

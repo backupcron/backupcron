@@ -325,3 +325,6 @@
 "settings_backup.running" = "실행 중인 백업이 끝난 후 복원하세요.";
 "settings_backup.confirm_restore" = "현재 작업과 설정을 교체할까요? 복원 전 사본이 로컬에 저장됩니다. 암호와 자동 시작 설정은 이전되지 않습니다. 일정이 일시 정지됩니다. 경로와 암호를 확인한 후 활성화하세요.";
 "settings_backup.restored" = "설정이 복원되었습니다. 일정이 일시 정지되었습니다. 경로와 암호를 확인한 후 활성화하세요.";
+
+"menu.open" = "BackupCron 열기";
+"menu.quit" = "BackupCron 종료";

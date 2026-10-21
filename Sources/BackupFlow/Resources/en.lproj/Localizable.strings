@@ -338,3 +338,6 @@
 "settings_backup.running" = "Wait for running backups to finish before restoring.";
 "settings_backup.confirm_restore" = "Replace current jobs and settings? A recovery copy will be saved locally. Passwords and startup registration are not included. The scheduler will be paused; check paths and passwords before enabling it.";
 "settings_backup.restored" = "Settings restored. The scheduler is paused. Check paths and passwords before enabling it.";
+
+"menu.open" = "Open BackupCron";
+"menu.quit" = "Quit BackupCron";

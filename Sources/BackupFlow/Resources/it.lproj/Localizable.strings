@@ -328,3 +328,65 @@
 
 "menu.open" = "Apri BackupCron";
 "menu.quit" = "Esci da BackupCron";
+
+"disk.on_connect" = "Al collegamento del disco";
+"disk.waiting" = "In attesa del collegamento del disco";
+"disk.choose_external" = "Collega il disco esterno e scegli una cartella al suo interno.";
+"disk.unavailable" = "Il disco «%@» non è disponibile oppure la destinazione si trova su un altro disco.";
+"disk.trigger" = "Avvio";
+"disk.connected" = "Collegato";
+"disk.disconnected" = "Scollegato";
+"disk.choose_folder" = "Scegli cartella sul disco";
+"disk.device" = "Disco";
+"sync.operation" = "Modalità";
+"sync.backup_mode" = "Backup";
+"sync.mode" = "Sincronizza cartella";
+"sync.keep_files" = "Copia i file nuovi e modificati, conservando gli originali e gli altri file sul disco.";
+"sync.copying" = "Sincronizzazione dei file…";
+"sync.completed" = "Cartella sincronizzata";
+"sync.choose_source_folder" = "Scegli una cartella di origine da sincronizzare.";
+"sync.overlapping_paths" = "Le cartelle di origine e destinazione non devono essere contenute una dentro l’altra.";
+
+"tray.copying" = "Copia in corso";
+"tray.waiting_source" = "In attesa dei file";
+"sync.waiting_source" = "In attesa del termine della scrittura: %@";
+"sync.source_not_ready" = "Il file sta ancora cambiando, è bloccato o ha un nome temporaneo: %@. Riavvia al termine della scrittura.";
+"sync.path_conflict" = "Conflitto di file o collegamento nella destinazione: %@";
+"sync.verification_failed" = "La copia non ha superato la verifica. La copia precedente è stata conservata.";
+
+"sync.pending" = "In attesa di trasferimento";
+"sync.pending_count" = "%d file";
+
+"remote.source" = "Posizione origine";
+"remote.local" = "Su questo Mac";
+"remote.ssh" = "SSH (rsync)";
+"remote.folder" = "Cartella sul server";
+"remote.invalid_path" = "Inserisci un percorso assoluto della cartella sul server.";
+
+"group.title" = "Gruppo";
+"group.new" = "Nuovo gruppo";
+"group.name" = "Nome del gruppo";
+"group.none" = "Senza gruppo";
+"group.edit" = "Modifica gruppo";
+"group.delete" = "Elimina gruppo";
+"group.delete_message" = "Le attività rimarranno in Senza gruppo.";
+"group.run" = "Avvia gruppo";
+"group.empty" = "Nessuna attività in questo gruppo";
+"group.name_required" = "Inserisci un nome per il gruppo.";
+"group.name_exists" = "Esiste già un gruppo con questo nome.";
+"group.missing" = "Questo gruppo non esiste più. Scegli un altro gruppo.";
+"group.open" = "Apri gruppo";
+"group.plural" = "Gruppi";
+
+"cold.title" = "Archivio offline";
+"cold.add" = "Aggiungi unità";
+"cold.name" = "Nome";
+"cold.choose_disk" = "Scegli unità";
+"cold.copy" = "Copia";
+"cold.ready" = "Pronto per espulsione";
+"cold.waiting_backups" = "In attesa di backup completati";
+"cold.choose_jobs" = "Seleziona almeno un’attività.";
+"cold.invalid" = "Indica un nome, un’unità esterna e le attività.";
+"cold.no_backups" = "Nessun backup completato disponibile: %@";
+"cold.copy_note" = "Copia i backup completati. Gli originali vengono conservati.";
+"cold.delete_message" = "Rimuovere la configurazione dell’unità? Le copie verranno conservate.";

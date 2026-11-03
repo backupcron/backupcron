@@ -6,14 +6,14 @@ subscriptions or a limit on the number of jobs.
 
 ## Download
 
-[Download BackupCron 1.3 for macOS](https://github.com/backupcron/backupcron/releases/download/v1.3/BackupCron-1.3-universal-installer.dmg)
+[Download BackupCron 1.4 for macOS](https://github.com/backupcron/backupcron/releases/download/v1.4/BackupCron-1.4-universal-installer.dmg)
 
 Universal build for Apple Silicon and Intel; requires macOS 14 or later.
 Open the DMG and drag BackupCron into Applications.
 
 This build is ad hoc signed and is not notarized by Apple. For first-launch
 instructions and the SHA-256 checksum, see the
-[release page](https://github.com/backupcron/backupcron/releases/tag/v1.3).
+[release page](https://github.com/backupcron/backupcron/releases/tag/v1.4).
 
 ## Screenshots
 
@@ -59,6 +59,9 @@ This SQLite example keeps customers and orders while excluding request logs and 
 ## Features
 
 - Files, folders and projects: ordinary copies or ZIP archives.
+- Remote folders over SSH using rsync, saved as separate copies or ZIP archives.
+- External disk detection and continuous folder copying without deleting older destination files.
+- Cold storage: verified copies of successful backups to selected external disks.
 - SQLite: consistent snapshots, with optional removal of entire tables.
 - PostgreSQL and MySQL: SQL dumps using their native command-line clients.
 - Database table sizes, search and sorting before choosing exclusions.
@@ -73,7 +76,7 @@ This SQLite example keeps customers and orders while excluding request logs and 
 - Database passwords in macOS Keychain and persistent access to selected paths.
 - Automatic settings and job backups to a selected iCloud Drive folder.
 - Manual settings backup and restore, with a local recovery copy before replacement.
-- A menu bar icon for opening the window and quitting BackupCron.
+- A menu bar panel with job controls, cold storage status and backup progress.
 - Ten interface languages, selected from the macOS language settings.
 
 ## Requirements
@@ -136,6 +139,13 @@ the engine checks exclusions again when the job runs.
 
 In SSH mode, database tools run on the server and use its `.pgpass` or `.my.cnf`.
 The local Keychain password is not transmitted in this mode.
+
+For remote folders, choose **SSH (rsync)** and enter an absolute server path.
+rsync must be installed on both computers. SSH uses existing keys and requires
+an already trusted host key. Copies only download data to the Mac; no files
+are changed or deleted on the server. Each run creates a separate snapshot,
+not a mirror or a cross-file atomic snapshot. Interrupted transfers are not
+published as successful backups.
 
 New project jobs include `.git`. Worktrees, submodules and external Git object
 stores may depend on paths outside the project folder. A project copy is not

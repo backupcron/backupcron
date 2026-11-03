@@ -82,13 +82,15 @@ jobs:
         shell: bash
         run: |
           cat > "$RUNNER_TEMP/release-notes.md" <<'NOTES'
-          ## Settings backup and restore
+          ## External disks, cold storage and remote folders
 
-          - Automatic copies of jobs and app preferences to a selected iCloud Drive folder.
-          - Manual backup and restore, with format validation and a local recovery copy before replacement.
-          - A menu bar icon for opening the window and quitting the app.
-          - A separate startup section and refreshed launch-at-login status.
-          - Updated interface text in all ten languages.
+          - Cold storage for verified copies of successful backups on selected external disks.
+          - External disk detection and copying on connection, including support for renamed disks.
+          - Continuous folder copying with incremental checkpoints, retries and cancellation; older destination files are preserved.
+          - Remote folder backups over SSH using rsync, as separate copies or ZIP archives.
+          - An expanded menu bar panel with job controls, progress, cold storage status and activity animation.
+          - Settings backup and restore now include cold storage configuration.
+          - Updated interface translations in all ten supported languages.
 
           Restoring pauses the scheduler. Check paths, access permissions and passwords before enabling it. Passwords, file-access permissions, history and system startup registration are not transferred. iCloud Drive manages uploading the saved files.
 
@@ -96,7 +98,7 @@ jobs:
 
           This build is ad hoc signed and is not notarized by Apple. Verify the SHA-256 checksum before installation. If macOS blocks the verified download, review it in System Settings → Privacy & Security.
 
-          Verification: automated tests, both CPU architectures, installer image integrity and strict app signature verification after mounting the DMG. macOS restore was also checked in an isolated local app. iCloud upload completion and startup after an OS login have not been exercised by CI.
+          Verification: automated tests, both CPU architectures, installer image integrity and strict app signature verification after mounting the DMG. Tests cover temporary local files and simulated disk and SSH behavior; physical disk reconnection, live SSH servers, iCloud upload completion and startup after an OS login are not exercised by CI. Database integration tests require opt-in disposable fixtures.
           NOTES
           printf '\nBuilt from `%s`.\n\nSHA-256:\n```text\n' "$SOURCE_COMMIT" >> "$RUNNER_TEMP/release-notes.md"
           cat .build/SHA256SUMS.txt >> "$RUNNER_TEMP/release-notes.md"

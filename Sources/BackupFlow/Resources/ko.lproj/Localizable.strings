@@ -328,3 +328,65 @@
 
 "menu.open" = "BackupCron 열기";
 "menu.quit" = "BackupCron 종료";
+
+"disk.on_connect" = "디스크 연결 시";
+"disk.waiting" = "디스크 연결 대기 중";
+"disk.choose_external" = "외장 디스크를 연결하고 디스크의 폴더를 선택하세요.";
+"disk.unavailable" = "디스크 “%@”을(를) 사용할 수 없거나 대상 폴더가 다른 디스크에 있습니다.";
+"disk.trigger" = "실행";
+"disk.connected" = "연결됨";
+"disk.disconnected" = "연결 안 됨";
+"disk.choose_folder" = "디스크의 폴더 선택";
+"disk.device" = "디스크";
+"sync.operation" = "모드";
+"sync.backup_mode" = "백업";
+"sync.mode" = "폴더 동기화";
+"sync.keep_files" = "새 파일과 변경된 파일을 복사하며 원본과 디스크의 다른 파일은 유지합니다.";
+"sync.copying" = "파일 동기화 중…";
+"sync.completed" = "폴더 동기화 완료";
+"sync.choose_source_folder" = "동기화할 원본 폴더를 선택하세요.";
+"sync.overlapping_paths" = "원본 폴더와 대상 폴더는 서로의 하위 폴더가 될 수 없습니다.";
+
+"tray.copying" = "복사 중";
+"tray.waiting_source" = "쓰기 완료 대기 중";
+"sync.waiting_source" = "쓰기 완료 대기 중: %@";
+"sync.source_not_ready" = "파일이 변경 중이거나 잠겨 있거나 임시 이름을 사용 중입니다: %@. 쓰기가 끝난 후 다시 실행하세요.";
+"sync.path_conflict" = "대상에서 파일 또는 링크가 충돌합니다: %@";
+"sync.verification_failed" = "복사본 검증에 실패했습니다. 이전 복사본은 유지됩니다.";
+
+"sync.pending" = "전송 대기";
+"sync.pending_count" = "파일 %d개";
+
+"remote.source" = "원본 위치";
+"remote.local" = "이 Mac";
+"remote.ssh" = "SSH (rsync)";
+"remote.folder" = "서버의 폴더";
+"remote.invalid_path" = "서버에 있는 폴더의 절대 경로를 입력하세요.";
+
+"group.title" = "그룹";
+"group.new" = "새 그룹";
+"group.name" = "그룹 이름";
+"group.none" = "그룹 없음";
+"group.edit" = "그룹 편집";
+"group.delete" = "그룹 삭제";
+"group.delete_message" = "작업은 그룹 없음에 유지됩니다.";
+"group.run" = "그룹 실행";
+"group.empty" = "이 그룹에 작업이 없습니다";
+"group.name_required" = "그룹 이름을 입력하세요.";
+"group.name_exists" = "같은 이름의 그룹이 이미 있습니다.";
+"group.missing" = "이 그룹이 더 이상 존재하지 않습니다. 다른 그룹을 선택하세요.";
+"group.open" = "그룹 열기";
+"group.plural" = "그룹";
+
+"cold.title" = "오프라인 보관";
+"cold.add" = "드라이브 추가";
+"cold.name" = "이름";
+"cold.choose_disk" = "드라이브 선택";
+"cold.copy" = "복사";
+"cold.ready" = "꺼내기 준비 완료";
+"cold.waiting_backups" = "완료된 백업 대기 중";
+"cold.choose_jobs" = "작업을 하나 이상 선택하세요.";
+"cold.invalid" = "이름, 외장 드라이브 및 작업을 지정하세요.";
+"cold.no_backups" = "사용 가능한 완료된 백업이 없습니다: %@";
+"cold.copy_note" = "완료된 백업을 복사합니다. 원본은 유지됩니다.";
+"cold.delete_message" = "드라이브 설정을 삭제할까요? 드라이브의 복사본은 유지됩니다.";

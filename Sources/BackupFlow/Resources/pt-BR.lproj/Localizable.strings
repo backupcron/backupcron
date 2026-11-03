@@ -328,3 +328,65 @@
 
 "menu.open" = "Abrir BackupCron";
 "menu.quit" = "Sair do BackupCron";
+
+"disk.on_connect" = "Ao conectar o disco";
+"disk.waiting" = "Aguardando conexão do disco";
+"disk.choose_external" = "Conecte o disco externo e escolha uma pasta nele.";
+"disk.unavailable" = "O disco “%@” está indisponível ou o destino está em outro disco.";
+"disk.trigger" = "Executar";
+"disk.connected" = "Conectado";
+"disk.disconnected" = "Desconectado";
+"disk.choose_folder" = "Escolher pasta no disco";
+"disk.device" = "Disco";
+"sync.operation" = "Modo";
+"sync.backup_mode" = "Backup";
+"sync.mode" = "Sincronizar pasta";
+"sync.keep_files" = "Copia arquivos novos e alterados, mantendo os originais e os outros arquivos no disco.";
+"sync.copying" = "Sincronizando arquivos…";
+"sync.completed" = "Pasta sincronizada";
+"sync.choose_source_folder" = "Escolha uma pasta de origem para sincronizar.";
+"sync.overlapping_paths" = "As pastas de origem e destino não podem estar contidas uma na outra.";
+
+"tray.copying" = "Copiando";
+"tray.waiting_source" = "Aguardando arquivos";
+"sync.waiting_source" = "Aguardando o fim da gravação: %@";
+"sync.source_not_ready" = "O arquivo ainda está mudando, está bloqueado ou tem um nome temporário: %@. Execute novamente após o fim da gravação.";
+"sync.path_conflict" = "Conflito de arquivo ou link no destino: %@";
+"sync.verification_failed" = "A cópia não passou na verificação. A cópia anterior foi mantida.";
+
+"sync.pending" = "Aguardando transferência";
+"sync.pending_count" = "%d arquivos";
+
+"remote.source" = "Local de origem";
+"remote.local" = "Neste Mac";
+"remote.ssh" = "SSH (rsync)";
+"remote.folder" = "Pasta no servidor";
+"remote.invalid_path" = "Insira um caminho absoluto para a pasta no servidor.";
+
+"group.title" = "Grupo";
+"group.new" = "Novo grupo";
+"group.name" = "Nome do grupo";
+"group.none" = "Sem grupo";
+"group.edit" = "Editar grupo";
+"group.delete" = "Excluir grupo";
+"group.delete_message" = "As tarefas permanecerão em Sem grupo.";
+"group.run" = "Executar grupo";
+"group.empty" = "Nenhuma tarefa neste grupo";
+"group.name_required" = "Digite um nome para o grupo.";
+"group.name_exists" = "Já existe um grupo com esse nome.";
+"group.missing" = "Este grupo não existe mais. Escolha outro grupo.";
+"group.open" = "Abrir grupo";
+"group.plural" = "Grupos";
+
+"cold.title" = "Armazenamento offline";
+"cold.add" = "Adicionar unidade";
+"cold.name" = "Nome";
+"cold.choose_disk" = "Escolher unidade";
+"cold.copy" = "Copiar";
+"cold.ready" = "Pronto para ejetar";
+"cold.waiting_backups" = "Aguardando backups concluídos";
+"cold.choose_jobs" = "Selecione pelo menos uma tarefa.";
+"cold.invalid" = "Informe um nome, uma unidade externa e as tarefas.";
+"cold.no_backups" = "Nenhum backup concluído disponível: %@";
+"cold.copy_note" = "Copia os backups concluídos. Os originais são mantidos.";
+"cold.delete_message" = "Remover a configuração desta unidade? As cópias serão mantidas.";

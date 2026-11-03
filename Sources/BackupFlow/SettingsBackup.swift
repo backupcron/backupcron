@@ -7,6 +7,8 @@ struct SettingsArchive: Codable {
     var format = Self.format
     var version = 1
     var createdAt = Date()
+    var groups: [BackupGroup]?
+    var coldStorages: [ColdStorageDestination]?
     var jobs: [BackupJob]
     var preferences: Preferences
 
@@ -27,7 +29,13 @@ struct SettingsArchive: Codable {
         }
     }
 
-    init(jobs: [BackupJob], preferences: Preferences) {
+    init(jobs: [BackupJob], preferences: Preferences, groups: [BackupGroup] = [], coldStorages: [ColdStorageDestination] = []) {
+        self.groups = groups
+        self.coldStorages = coldStorages.map { item in
+            var copy = item
+            copy.bookmark = nil
+            return copy
+        }
         self.jobs = jobs.map { job in
             var copy = job
             copy.sourceBookmark = nil
@@ -54,6 +62,8 @@ struct SettingsArchive: Codable {
         let archive = try decoder.decode(Self.self, from: data)
         guard archive.format == Self.format, archive.version == 1,
               Set(archive.jobs.map(\.id)).count == archive.jobs.count,
+              BackupGroup.valid(archive.groups ?? [], jobs: archive.jobs),
+              ColdStorageDestination.valid(archive.coldStorages ?? [], jobs: archive.jobs),
               archive.preferences.soundVolume.isFinite,
               (0...1).contains(archive.preferences.soundVolume),
               archive.jobs.allSatisfy({ job in

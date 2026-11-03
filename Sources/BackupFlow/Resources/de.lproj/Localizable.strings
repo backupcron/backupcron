@@ -328,3 +328,65 @@
 
 "menu.open" = "BackupCron öffnen";
 "menu.quit" = "BackupCron beenden";
+
+"disk.on_connect" = "Beim Anschließen des Laufwerks";
+"disk.waiting" = "Warten auf Laufwerk";
+"disk.choose_external" = "Schließe das externe Laufwerk an und wähle darauf einen Ordner.";
+"disk.unavailable" = "Das Laufwerk „%@“ ist nicht verfügbar oder das Ziel liegt auf einem anderen Laufwerk.";
+"disk.trigger" = "Start";
+"disk.connected" = "Verbunden";
+"disk.disconnected" = "Getrennt";
+"disk.choose_folder" = "Ordner auf Laufwerk wählen";
+"disk.device" = "Laufwerk";
+"sync.operation" = "Modus";
+"sync.backup_mode" = "Sicherung";
+"sync.mode" = "Ordnersynchronisierung";
+"sync.keep_files" = "Kopiert neue und geänderte Dateien. Originale und andere Dateien auf dem Laufwerk bleiben erhalten.";
+"sync.copying" = "Dateien werden synchronisiert…";
+"sync.completed" = "Ordner synchronisiert";
+"sync.choose_source_folder" = "Wähle einen Quellordner für die Synchronisierung.";
+"sync.overlapping_paths" = "Quell- und Zielordner dürfen nicht ineinander liegen.";
+
+"tray.copying" = "Kopiert";
+"tray.waiting_source" = "Wartet auf Dateien";
+"sync.waiting_source" = "Warten auf Schreibende: %@";
+"sync.source_not_ready" = "Datei ändert sich noch, ist gesperrt oder hat einen temporären Namen: %@. Nach dem Schreibende erneut starten.";
+"sync.path_conflict" = "Datei- oder Verknüpfungskonflikt am Ziel: %@";
+"sync.verification_failed" = "Die Kopie hat die Prüfung nicht bestanden. Die vorherige Kopie wurde behalten.";
+
+"sync.pending" = "Ausstehende Übertragung";
+"sync.pending_count" = "%d Dateien";
+
+"remote.source" = "Quellort";
+"remote.local" = "Auf diesem Mac";
+"remote.ssh" = "SSH (rsync)";
+"remote.folder" = "Ordner auf dem Server";
+"remote.invalid_path" = "Gib einen absoluten Ordnerpfad auf dem Server ein.";
+
+"group.title" = "Gruppe";
+"group.new" = "Neue Gruppe";
+"group.name" = "Gruppenname";
+"group.none" = "Ohne Gruppe";
+"group.edit" = "Gruppe bearbeiten";
+"group.delete" = "Gruppe löschen";
+"group.delete_message" = "Die Aufgaben bleiben unter „Ohne Gruppe“ erhalten.";
+"group.run" = "Gruppe starten";
+"group.empty" = "Keine Aufgaben in dieser Gruppe";
+"group.name_required" = "Geben Sie einen Gruppennamen ein.";
+"group.name_exists" = "Eine Gruppe mit diesem Namen existiert bereits.";
+"group.missing" = "Diese Gruppe existiert nicht mehr. Wählen Sie eine andere Gruppe.";
+"group.open" = "Gruppe öffnen";
+"group.plural" = "Gruppen";
+
+"cold.title" = "Offline-Speicher";
+"cold.add" = "Datenträger hinzufügen";
+"cold.name" = "Name";
+"cold.choose_disk" = "Datenträger wählen";
+"cold.copy" = "Kopieren";
+"cold.ready" = "Bereit zum Auswerfen";
+"cold.waiting_backups" = "Warten auf fertige Sicherungen";
+"cold.choose_jobs" = "Wählen Sie mindestens einen Auftrag.";
+"cold.invalid" = "Geben Sie einen Namen, einen externen Datenträger und Aufträge an.";
+"cold.no_backups" = "Keine fertigen Sicherungen verfügbar: %@";
+"cold.copy_note" = "Fertige Sicherungen werden kopiert. Originale bleiben erhalten.";
+"cold.delete_message" = "Diese Datenträgerkonfiguration entfernen? Kopien auf dem Datenträger bleiben erhalten.";

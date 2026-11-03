@@ -328,3 +328,65 @@
 
 "menu.open" = "BackupCron を開く";
 "menu.quit" = "BackupCron を終了";
+
+"disk.on_connect" = "ディスク接続時";
+"disk.waiting" = "ディスクの接続を待機中";
+"disk.choose_external" = "外付けディスクを接続し、その中のフォルダを選択してください。";
+"disk.unavailable" = "ディスク「%@」が利用できないか、保存先が別のディスクにあります。";
+"disk.trigger" = "実行";
+"disk.connected" = "接続済み";
+"disk.disconnected" = "未接続";
+"disk.choose_folder" = "ディスク内のフォルダを選択";
+"disk.device" = "ディスク";
+"sync.operation" = "モード";
+"sync.backup_mode" = "バックアップ";
+"sync.mode" = "フォルダ同期";
+"sync.keep_files" = "新規・変更されたファイルをコピーし、元のファイルとディスク上の他のファイルを保持します。";
+"sync.copying" = "ファイルを同期中…";
+"sync.completed" = "フォルダを同期しました";
+"sync.choose_source_folder" = "同期する元のフォルダを選択してください。";
+"sync.overlapping_paths" = "同期元と保存先のフォルダを互いの中に配置することはできません。";
+
+"tray.copying" = "コピー中";
+"tray.waiting_source" = "書き込み完了待ち";
+"sync.waiting_source" = "書き込みの完了を待っています: %@";
+"sync.source_not_ready" = "ファイルは変更中、ロック中、または一時的な名前です: %@。書き込み完了後に再実行してください。";
+"sync.path_conflict" = "コピー先でファイルまたはリンクが競合しています: %@";
+"sync.verification_failed" = "コピーの検証に失敗しました。以前のコピーは保持されています。";
+
+"sync.pending" = "転送待ち";
+"sync.pending_count" = "%d ファイル";
+
+"remote.source" = "コピー元の場所";
+"remote.local" = "この Mac";
+"remote.ssh" = "SSH (rsync)";
+"remote.folder" = "サーバー上のフォルダ";
+"remote.invalid_path" = "サーバー上のフォルダの絶対パスを入力してください。";
+
+"group.title" = "グループ";
+"group.new" = "新規グループ";
+"group.name" = "グループ名";
+"group.none" = "グループなし";
+"group.edit" = "グループを編集";
+"group.delete" = "グループを削除";
+"group.delete_message" = "ジョブは「グループなし」に残ります。";
+"group.run" = "グループを実行";
+"group.empty" = "このグループにジョブはありません";
+"group.name_required" = "グループ名を入力してください。";
+"group.name_exists" = "同じ名前のグループが既に存在します。";
+"group.missing" = "このグループは存在しません。別のグループを選択してください。";
+"group.open" = "グループを開く";
+"group.plural" = "グループ";
+
+"cold.title" = "オフライン保管";
+"cold.add" = "ドライブを追加";
+"cold.name" = "名前";
+"cold.choose_disk" = "ドライブを選択";
+"cold.copy" = "コピー";
+"cold.ready" = "取り出し可能";
+"cold.waiting_backups" = "バックアップの完了を待機中";
+"cold.choose_jobs" = "タスクを1つ以上選択してください。";
+"cold.invalid" = "名前、外部ドライブ、タスクを指定してください。";
+"cold.no_backups" = "完了したバックアップがありません: %@";
+"cold.copy_note" = "完了したバックアップをコピーします。元のデータは保持されます。";
+"cold.delete_message" = "このドライブの設定を削除しますか？ドライブ上のコピーは保持されます。";

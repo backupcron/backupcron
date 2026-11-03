@@ -341,3 +341,65 @@
 
 "menu.open" = "Open BackupCron";
 "menu.quit" = "Quit BackupCron";
+
+"disk.on_connect" = "When disk connects";
+"disk.waiting" = "Waiting for disk connection";
+"disk.choose_external" = "Connect the external disk and choose a folder on it.";
+"disk.unavailable" = "The disk “%@” is unavailable or the destination is on another disk.";
+"disk.trigger" = "Run";
+"disk.connected" = "Connected";
+"disk.disconnected" = "Disconnected";
+"disk.choose_folder" = "Choose folder on disk";
+"disk.device" = "Disk";
+"sync.operation" = "Mode";
+"sync.backup_mode" = "Backup";
+"sync.mode" = "Folder sync";
+"sync.keep_files" = "Copies new and changed files, keeping originals and other files on the disk.";
+"sync.copying" = "Synchronizing files…";
+"sync.completed" = "Folder synchronized";
+"sync.choose_source_folder" = "Choose a source folder for synchronization.";
+"sync.overlapping_paths" = "Source and destination folders must not contain each other.";
+
+"tray.copying" = "Copying";
+"tray.waiting_source" = "Waiting for files";
+"sync.waiting_source" = "Waiting for writing to finish: %@";
+"sync.source_not_ready" = "File is still changing, locked, or has a temporary name: %@. Run again after writing finishes.";
+"sync.path_conflict" = "A file or link conflicts with the destination: %@";
+"sync.verification_failed" = "The copied file failed verification. The previous copy was kept.";
+
+"sync.pending" = "Waiting to transfer";
+"sync.pending_count" = "%d files";
+
+"remote.source" = "Source location";
+"remote.local" = "On this Mac";
+"remote.ssh" = "SSH (rsync)";
+"remote.folder" = "Folder on server";
+"remote.invalid_path" = "Enter an absolute folder path on the server.";
+
+"group.title" = "Group";
+"group.new" = "New group";
+"group.name" = "Group name";
+"group.none" = "Ungrouped";
+"group.edit" = "Edit group";
+"group.delete" = "Delete group";
+"group.delete_message" = "The jobs will remain under Ungrouped.";
+"group.run" = "Run group";
+"group.empty" = "No jobs in this group";
+"group.name_required" = "Enter a group name.";
+"group.name_exists" = "A group with this name already exists.";
+"group.missing" = "This group no longer exists. Choose another group.";
+"group.open" = "Open group";
+"group.plural" = "Groups";
+
+"cold.title" = "Cold storage";
+"cold.add" = "Add drive";
+"cold.name" = "Name";
+"cold.choose_disk" = "Choose drive";
+"cold.copy" = "Copy";
+"cold.ready" = "Ready to eject";
+"cold.waiting_backups" = "Waiting for completed backups";
+"cold.choose_jobs" = "Select at least one job.";
+"cold.invalid" = "Enter a name, an external drive, and jobs.";
+"cold.no_backups" = "No completed backups available: %@";
+"cold.copy_note" = "Copies completed backups. Originals are kept.";
+"cold.delete_message" = "Remove this drive configuration? Copies on the drive will be kept.";

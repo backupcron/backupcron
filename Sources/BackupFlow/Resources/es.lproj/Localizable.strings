@@ -328,3 +328,65 @@
 
 "menu.open" = "Abrir BackupCron";
 "menu.quit" = "Salir de BackupCron";
+
+"disk.on_connect" = "Al conectar el disco";
+"disk.waiting" = "Esperando la conexión del disco";
+"disk.choose_external" = "Conecta el disco externo y elige una carpeta en él.";
+"disk.unavailable" = "El disco «%@» no está disponible o el destino está en otro disco.";
+"disk.trigger" = "Ejecutar";
+"disk.connected" = "Conectado";
+"disk.disconnected" = "Desconectado";
+"disk.choose_folder" = "Elegir carpeta en el disco";
+"disk.device" = "Disco";
+"sync.operation" = "Modo";
+"sync.backup_mode" = "Copia de seguridad";
+"sync.mode" = "Sincronizar carpeta";
+"sync.keep_files" = "Copia archivos nuevos y modificados, conservando los originales y los demás archivos del disco.";
+"sync.copying" = "Sincronizando archivos…";
+"sync.completed" = "Carpeta sincronizada";
+"sync.choose_source_folder" = "Elige una carpeta de origen para sincronizar.";
+"sync.overlapping_paths" = "Las carpetas de origen y destino no deben contenerse entre sí.";
+
+"tray.copying" = "Copiando";
+"tray.waiting_source" = "Esperando archivos";
+"sync.waiting_source" = "Esperando a que termine la escritura: %@";
+"sync.source_not_ready" = "El archivo sigue cambiando, está bloqueado o tiene un nombre temporal: %@. Vuelve a ejecutar al terminar la escritura.";
+"sync.path_conflict" = "Conflicto de archivo o enlace en el destino: %@";
+"sync.verification_failed" = "La copia no superó la verificación. Se conservó la copia anterior.";
+
+"sync.pending" = "Pendientes de transferir";
+"sync.pending_count" = "%d archivos";
+
+"remote.source" = "Ubicación de origen";
+"remote.local" = "En este Mac";
+"remote.ssh" = "SSH (rsync)";
+"remote.folder" = "Carpeta en el servidor";
+"remote.invalid_path" = "Introduce una ruta absoluta a la carpeta del servidor.";
+
+"group.title" = "Grupo";
+"group.new" = "Nuevo grupo";
+"group.name" = "Nombre del grupo";
+"group.none" = "Sin grupo";
+"group.edit" = "Editar grupo";
+"group.delete" = "Eliminar grupo";
+"group.delete_message" = "Las tareas permanecerán en Sin grupo.";
+"group.run" = "Ejecutar grupo";
+"group.empty" = "Este grupo no tiene tareas";
+"group.name_required" = "Introduce un nombre para el grupo.";
+"group.name_exists" = "Ya existe un grupo con este nombre.";
+"group.missing" = "Este grupo ya no existe. Selecciona otro grupo.";
+"group.open" = "Abrir grupo";
+"group.plural" = "Grupos";
+
+"cold.title" = "Almacenamiento sin conexión";
+"cold.add" = "Añadir unidad";
+"cold.name" = "Nombre";
+"cold.choose_disk" = "Elegir unidad";
+"cold.copy" = "Copiar";
+"cold.ready" = "Listo para expulsar";
+"cold.waiting_backups" = "Esperando copias terminadas";
+"cold.choose_jobs" = "Selecciona al menos una tarea.";
+"cold.invalid" = "Indica un nombre, una unidad externa y las tareas.";
+"cold.no_backups" = "No hay copias terminadas disponibles: %@";
+"cold.copy_note" = "Se copian las copias terminadas. Se conservan los originales.";
+"cold.delete_message" = "¿Eliminar la configuración de esta unidad? Las copias se conservarán.";

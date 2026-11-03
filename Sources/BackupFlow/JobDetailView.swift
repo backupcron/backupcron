@@ -75,7 +75,7 @@ struct JobDetailView: View {
                     VStack(alignment: .leading, spacing: 5) {
                         Text(L10n.text("ux.backup_parameters"))
                             .font(.system(size: 14, weight: .semibold))
-                        Text("\(URL(fileURLWithPath: job.destinationPath).lastPathComponent) · \(job.archiveOutput ? L10n.text("job.archive_enabled") : L10n.text("job.archive_disabled"))")
+                        Text("\(URL(fileURLWithPath: job.destinationPath).lastPathComponent) · \(job.outputDescription)")
                             .font(.system(size: 12)).foregroundStyle(.secondary)
                     }
                 }
@@ -186,9 +186,9 @@ struct JobDetailView: View {
     private var lastSuccess: some View {
         VStack(alignment: .leading, spacing: 9) {
             Text(L10n.text("ux.last_success")).font(.system(size: 13, weight: .semibold))
-            if let run = snapshot.latestSuccess {
-                Text(run.finishedAt.formatted(date: .abbreviated, time: .shortened))
-                if let size = run.outputSizeBytes {
+            if let date = store.folderSyncStates[job.id]?.checkpoint.lastSuccess ?? snapshot.latestSuccess?.finishedAt {
+                Text(date.formatted(date: .abbreviated, time: .shortened))
+                if let size = snapshot.latestSuccess?.outputSizeBytes {
                     Text(ByteCountFormatter.string(fromByteCount: size, countStyle: .file))
                         .font(.system(size: 12)).foregroundStyle(.secondary)
                 }
@@ -201,13 +201,16 @@ struct JobDetailView: View {
 
     private var nextRun: some View {
         VStack(alignment: .leading, spacing: 9) {
-            Text(L10n.text("job.next_run")).font(.system(size: 13, weight: .semibold))
-            Text(BackupScheduleState(job: job, schedulerEnabled: store.schedulerEnabled,
-                                     isRunning: isRunning).text)
-            if job.schedule != .manual {
+            Text(L10n.text(job.isFolderSync && job.schedule == .onVolumeMount ? "sync.pending" : "job.next_run")).font(.system(size: 13, weight: .semibold))
+            if job.isFolderSync && job.schedule == .onVolumeMount {
+                Text(store.syncPendingText(for: job)).monospacedDigit()
+                Text(store.trayState(for: job).title).foregroundStyle(.secondary)
+                if let error = store.folderSyncStates[job.id]?.scanError { Text(error).foregroundStyle(.secondary) }
+            } else {
+                Text(BackupScheduleState(job: job, schedulerEnabled: store.schedulerEnabled, isRunning: isRunning).text)
+            }
+            if job.schedule != .manual && !(job.isFolderSync && job.schedule == .onVolumeMount) {
                 Text(job.scheduleDescription).font(.system(size: 12)).foregroundStyle(.secondary)
-                Text(L10n.text("ux.schedule_open"))
-                    .font(.system(size: 11)).foregroundStyle(.secondary)
             }
         }
         .frame(maxWidth: .infinity, alignment: .topLeading)
@@ -218,10 +221,15 @@ struct JobDetailView: View {
             DetailRow(title: L10n.text("common.source"), value: sourceDescription, monospaced: true)
             DetailRow(title: L10n.text("job.destination_folder"), value: job.destinationPath, monospaced: true)
             DetailRow(title: L10n.text("job.output_format"),
-                      value: L10n.text(job.archiveOutput ? "job.archive_enabled" : "job.archive_disabled"))
-            DetailRow(title: L10n.text("job.name_mask"), value: job.nameMask, monospaced: true)
-            DetailRow(title: L10n.text("job.retention"), value: job.retentionCount > 0
-                      ? L10n.text("job.retention_count", job.retentionCount) : L10n.text("job.retention_all"))
+                      value: job.outputDescription)
+            if let binding = job.destinationVolume {
+                DetailRow(title: L10n.text("disk.device"), value: binding.name)
+            }
+            if !job.isFolderSync {
+                DetailRow(title: L10n.text("job.name_mask"), value: job.nameMask, monospaced: true)
+                DetailRow(title: L10n.text("job.retention"), value: job.retentionCount > 0
+                          ? L10n.text("job.retention_count", job.retentionCount) : L10n.text("job.retention_all"))
+            }
             if job.kind == .project {
                 DetailRow(title: L10n.text("job.project_exclusions"), value: job.projectExclusions, monospaced: true)
             }
@@ -248,7 +256,9 @@ struct JobDetailView: View {
 
     private var sourceDescription: String {
         switch job.kind {
-        case .files, .project, .sqlite: job.sourcePath
+        case .files:
+            job.isRemoteFileSource ? "\(job.sshUsername)@\(job.sshHost):\(job.sourcePath) · rsync" : job.sourcePath
+        case .project, .sqlite: job.sourcePath
         case .postgres, .mysql: job.connectionDescription
         }
     }

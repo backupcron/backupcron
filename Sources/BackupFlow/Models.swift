@@ -42,6 +42,7 @@ enum BackupKind: String, Codable, CaseIterable, Identifiable {
 
 enum ScheduleKind: String, Codable, CaseIterable, Identifiable {
     case manual
+    case onVolumeMount
     case interval
     case hourly
     case daily
@@ -52,6 +53,7 @@ enum ScheduleKind: String, Codable, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .manual: L10n.text("schedule.manual")
+        case .onVolumeMount: L10n.text("disk.on_connect")
         case .interval: L10n.text("schedule.interval")
         case .hourly: L10n.text("schedule.hourly")
         case .daily: L10n.text("schedule.daily")
@@ -112,6 +114,99 @@ struct SecurityScopedBookmark: Codable, Equatable {
     }
 }
 
+struct MountedBackupVolume: Equatable {
+    var id: String
+    var url: URL
+
+    static func current() -> [Self] {
+        let keys: Set<URLResourceKey> = [.volumeUUIDStringKey, .volumeIsLocalKey, .volumeIsInternalKey,
+                                       .volumeIsRemovableKey, .volumeIsEjectableKey]
+        return (FileManager.default.mountedVolumeURLs(includingResourceValuesForKeys: Array(keys)) ?? []).compactMap { url in
+            guard let values = try? url.resourceValues(forKeys: keys),
+                  values.volumeIsLocal == true, isExternal(values),
+                  let id = values.volumeUUIDString else { return nil }
+            return Self(id: id, url: url)
+        }
+    }
+
+    static func isExternal(_ values: URLResourceValues) -> Bool {
+        values.volumeIsInternal == false || values.volumeIsRemovable == true || values.volumeIsEjectable == true
+    }
+}
+
+struct BackupVolumeBinding: Codable, Equatable {
+    var id: String
+    var name: String
+    var relativePath: String
+    var configuredPath: String
+
+    static func capture(for url: URL) -> Self? {
+        let accessed = url.startAccessingSecurityScopedResource()
+        defer { if accessed { url.stopAccessingSecurityScopedResource() } }
+        guard let values = try? url.resourceValues(forKeys: [
+            .volumeUUIDStringKey, .volumeURLKey, .volumeNameKey, .volumeIsLocalKey, .volumeIsInternalKey,
+            .volumeIsRemovableKey, .volumeIsEjectableKey, .isDirectoryKey
+        ]), values.isDirectory == true, values.volumeIsLocal == true, MountedBackupVolume.isExternal(values),
+              let id = values.volumeUUIDString, let root = values.volume else { return nil }
+        let rootComponents = root.standardizedFileURL.resolvingSymlinksInPath().pathComponents
+        let components = url.standardizedFileURL.resolvingSymlinksInPath().pathComponents
+        guard components.starts(with: rootComponents) else { return nil }
+        return Self(id: id, name: values.volumeName ?? root.lastPathComponent,
+                    relativePath: components.dropFirst(rootComponents.count).joined(separator: "/"),
+                    configuredPath: url.standardized.path)
+    }
+
+    func matches(path: String) -> Bool {
+        !id.isEmpty && URL(fileURLWithPath: path).standardized.path == URL(fileURLWithPath: configuredPath).standardized.path
+            && !relativePath.hasPrefix("/")
+            && !relativePath.split(separator: "/").contains(where: { $0 == ".." || $0 == "." })
+    }
+
+    func destination(in volumes: [MountedBackupVolume]) -> URL? {
+        let matches = volumes.filter { $0.id == id }
+        guard matches.count == 1, self.matches(path: configuredPath) else { return nil }
+        return matches[0].url.appendingPathComponent(relativePath, isDirectory: true)
+    }
+
+    func connectedDestination() throws -> URL {
+        guard let destination = destination(in: MountedBackupVolume.current()) else {
+            throw BackupEngineError.invalidConfiguration(L10n.text("disk.unavailable", name))
+        }
+        // Resolve existing ancestors too: a symlink must never redirect a job to another volume.
+        var existing = destination.standardizedFileURL.resolvingSymlinksInPath()
+        while !FileManager.default.fileExists(atPath: existing.path), existing.path != "/" {
+            existing.deleteLastPathComponent()
+        }
+        guard let values = try? existing.resourceValues(forKeys: [.volumeUUIDStringKey]),
+              values.volumeUUIDString == id else {
+            throw BackupEngineError.invalidConfiguration(L10n.text("disk.unavailable", name))
+        }
+        return destination
+    }
+}
+
+struct VolumeRunTracker {
+    private var claimed: [UUID: String] = [:]
+
+    mutating func forget(jobID: UUID) { claimed.removeValue(forKey: jobID) }
+    mutating func disconnected(volumeID: String) { claimed = claimed.filter { $0.value != volumeID } }
+
+    mutating func jobsToRun(_ jobs: [BackupJob], volumes: [MountedBackupVolume],
+                           schedulerEnabled: Bool, running: Set<UUID>) -> [BackupJob] {
+        let connected = Set(volumes.map(\.id))
+        let jobIDs = Set(jobs.map(\.id))
+        claimed = claimed.filter { jobIDs.contains($0.key) && connected.contains($0.value) }
+        guard schedulerEnabled else { return [] }
+        return jobs.filter { job in
+            guard job.schedule == .onVolumeMount, job.isEnabled, !running.contains(job.id),
+                  let binding = job.destinationVolume, binding.matches(path: job.destinationPath),
+                  binding.destination(in: volumes) != nil, claimed[job.id] != binding.id else { return false }
+            claimed[job.id] = binding.id
+            return true
+        }
+    }
+}
+
 struct BackupJob: Codable, Identifiable, Equatable {
     var id = UUID()
     static var defaultName: String { L10n.text("job.default_name") }
@@ -122,6 +217,7 @@ struct BackupJob: Codable, Identifiable, Equatable {
     static let minimumIntervalMinutes = 5
     static let maximumIntervalMinutes = 1_440
 
+    var groupID: UUID?
     var name = BackupJob.defaultName
     var kind: BackupKind = .files
     var sourcePath = ""
@@ -131,6 +227,9 @@ struct BackupJob: Codable, Identifiable, Equatable {
     var clientExecutableBookmark: SecurityScopedBookmark?
     var sshIdentityBookmark: SecurityScopedBookmark?
     var archiveOutput = true
+    var synchronizeFolder = false
+    var filesOverSSH = false
+    var destinationVolume: BackupVolumeBinding?
     var nameMask = BackupJob.defaultNameMask
     var retentionCount = 0
     var projectExclusions = BackupJob.defaultProjectExclusions
@@ -156,6 +255,15 @@ struct BackupJob: Codable, Identifiable, Equatable {
     var lastRunAt: Date?
 
     var hasDatabaseSource: Bool { kind == .sqlite || kind == .postgres || kind == .mysql }
+    var isRemoteFileSource: Bool { kind == .files && filesOverSSH }
+    var isFolderSync: Bool { kind == .files && synchronizeFolder && !isRemoteFileSource }
+    var validSSHFileTarget: Bool {
+        sshHost.range(of: #"^[A-Za-z0-9][A-Za-z0-9._-]*$"#, options: .regularExpression) != nil
+            && sshUsername.range(of: #"^[A-Za-z_][A-Za-z0-9_.-]*$"#, options: .regularExpression) != nil
+    }
+    var outputDescription: String {
+        L10n.text(isFolderSync ? "sync.mode" : (archiveOutput ? "job.archive_enabled" : "job.archive_disabled"))
+    }
 
     var databaseTargetIdentity: [String] {
         if kind == .sqlite { return [kind.rawValue, sourcePath] }
@@ -211,6 +319,8 @@ struct BackupJob: Codable, Identifiable, Equatable {
         switch schedule {
         case .manual:
             return L10n.text("schedule.manual_only")
+        case .onVolumeMount:
+            return L10n.text("disk.on_connect")
         case .interval:
             return L10n.text("schedule.every_minutes", effectiveIntervalMinutes)
         case .hourly:
@@ -239,7 +349,7 @@ struct BackupJob: Codable, Identifiable, Equatable {
         guard isEnabled else { return nil }
 
         switch schedule {
-        case .manual:
+        case .manual, .onVolumeMount:
             return nil
         case .interval:
             return nextInterval(
@@ -272,7 +382,7 @@ struct BackupJob: Codable, Identifiable, Equatable {
         guard isEnabled, schedule != .manual else { return false }
 
         switch schedule {
-        case .manual:
+        case .manual, .onVolumeMount:
             return false
         case .interval:
             return now.timeIntervalSince(lastRunAt ?? createdAt) >= TimeInterval(effectiveIntervalMinutes * 60)
@@ -322,9 +432,10 @@ struct BackupJob: Codable, Identifiable, Equatable {
 
 extension BackupJob {
     private enum CodingKeys: String, CodingKey {
-        case id, name, kind, sourcePath, destinationPath, databaseName, host, port, username
+        case id, groupID, name, kind, sourcePath, destinationPath, databaseName, host, port, username
         case sourceBookmark, destinationBookmark, clientExecutableBookmark, sshIdentityBookmark
         case archiveOutput, nameMask, retentionCount, projectExclusions, excludedDatabaseTables
+        case synchronizeFolder, destinationVolume, filesOverSSH
         case connectionMode, useSSL, clientExecutablePath, dockerContainer
         case sshHost, sshPort, sshUsername, sshIdentityPath
         case schedule, intervalMinutes, scheduledTime, weekday, isEnabled, createdAt, lastRunAt
@@ -333,6 +444,7 @@ extension BackupJob {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decodeIfPresent(UUID.self, forKey: .id) ?? UUID()
+        groupID = try container.decodeIfPresent(UUID.self, forKey: .groupID)
         name = try container.decodeIfPresent(String.self, forKey: .name) ?? BackupJob.defaultName
         kind = try container.decodeIfPresent(BackupKind.self, forKey: .kind) ?? .files
         sourcePath = try container.decodeIfPresent(String.self, forKey: .sourcePath) ?? ""
@@ -342,6 +454,9 @@ extension BackupJob {
         clientExecutableBookmark = try container.decodeIfPresent(SecurityScopedBookmark.self, forKey: .clientExecutableBookmark)
         sshIdentityBookmark = try container.decodeIfPresent(SecurityScopedBookmark.self, forKey: .sshIdentityBookmark)
         archiveOutput = try container.decodeIfPresent(Bool.self, forKey: .archiveOutput) ?? true
+        synchronizeFolder = try container.decodeIfPresent(Bool.self, forKey: .synchronizeFolder) ?? false
+        filesOverSSH = try container.decodeIfPresent(Bool.self, forKey: .filesOverSSH) ?? false
+        destinationVolume = try container.decodeIfPresent(BackupVolumeBinding.self, forKey: .destinationVolume)
         nameMask = try container.decodeIfPresent(String.self, forKey: .nameMask) ?? BackupJob.defaultNameMask
         retentionCount = try container.decodeIfPresent(Int.self, forKey: .retentionCount) ?? 0
         projectExclusions = try container.decodeIfPresent(String.self, forKey: .projectExclusions)
@@ -615,7 +730,7 @@ enum BackupNaming {
         }
     }
 
-    private static func sanitize(_ value: String) -> String {
+    static func sanitize(_ value: String) -> String {
         let allowed = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "-_."))
         let mapped = value.unicodeScalars.map { allowed.contains($0) ? String($0) : "-" }.joined()
         let collapsed = mapped.split(separator: "-", omittingEmptySubsequences: true).joined(separator: "-")
@@ -624,9 +739,57 @@ enum BackupNaming {
     }
 }
 
+struct BackupGroup: Codable, Identifiable, Equatable {
+    var id = UUID()
+    var name: String
+
+    static func valid(_ groups: [Self], jobs: [BackupJob]) -> Bool {
+        let ids = Set(groups.map(\.id))
+        let names = groups.map { $0.name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }
+        return ids.count == groups.count && Set(names).count == names.count
+            && names.allSatisfy { !$0.isEmpty }
+            && jobs.allSatisfy { $0.groupID == nil || ids.contains($0.groupID!) }
+    }
+}
+
+enum BackupGroupError: LocalizedError {
+    case invalidName, duplicateName, missing
+    var errorDescription: String? {
+        switch self {
+        case .invalidName: L10n.text("group.name_required")
+        case .duplicateName: L10n.text("group.name_exists")
+        case .missing: L10n.text("group.missing")
+        }
+    }
+}
+
+struct ColdStorageDestination: Codable, Identifiable, Equatable {
+    var id = UUID()
+    var name: String
+    var volume: BackupVolumeBinding
+    var jobIDs: [UUID]
+    var bookmark: SecurityScopedBookmark? = nil
+    var isEnabled = true
+
+    static func valid(_ destinations: [Self], jobs: [BackupJob]) -> Bool {
+        let jobIDs = Set(jobs.map(\.id))
+        return Set(destinations.map(\.id)).count == destinations.count
+            && destinations.allSatisfy { item in
+                !item.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                    && !jobIDs.contains(item.id)
+                    && item.volume.matches(path: item.volume.configuredPath)
+                    && Set(item.jobIDs).count == item.jobIDs.count
+                    && Set(item.jobIDs).isSubset(of: jobIDs)
+            }
+    }
+}
+
 struct PersistedState: Codable {
+    var coldStorages: [ColdStorageDestination]? = nil
+    var groups: [BackupGroup]? = nil
     var jobs: [BackupJob]
     var history: [BackupRun]
+    var syncCheckpoints: [UUID: FolderSyncCheckpoint]? = nil
 }
 
 // Presentation is derived from recorded outcomes, never from an enabled timer.
@@ -668,12 +831,13 @@ struct JobSnapshot {
 }
 
 enum BackupScheduleState: Equatable {
-    case manual, paused, afterCurrent, due, scheduled(Date)
+    case manual, paused, afterCurrent, due, scheduled(Date), waitingForDisk
 
     init(job: BackupJob, schedulerEnabled: Bool, isRunning: Bool, now: Date = Date()) {
         if job.schedule == .manual { self = .manual }
         else if !schedulerEnabled || !job.isEnabled { self = .paused }
         else if isRunning { self = .afterCurrent }
+        else if job.schedule == .onVolumeMount { self = .waitingForDisk }
         else if job.isDue(at: now) { self = .due }
         else if let next = job.nextRun(after: now) { self = .scheduled(next) }
         else { self = .paused }
@@ -685,6 +849,7 @@ enum BackupScheduleState: Equatable {
         case .paused: L10n.text("status.scheduler_paused")
         case .afterCurrent: L10n.text("ux.after_current")
         case .due: L10n.text("ux.waiting_scheduler")
+        case .waitingForDisk: L10n.text("disk.waiting")
         case .scheduled(let date): date.formatted(date: .abbreviated, time: .shortened)
         }
     }
@@ -715,12 +880,141 @@ enum JobSetupStep: Int, CaseIterable, Identifiable {
                     if !(1...65535).contains(job.sshPort) { return "ux.invalid_port" }
                 }
             } else if empty(job.sourcePath) { return "validation.choose_source" }
+            if job.isRemoteFileSource {
+                if !job.sourcePath.hasPrefix("/") || job.sourcePath.contains("\0") || job.sourcePath.contains("\n") {
+                    return "remote.invalid_path"
+                }
+                if !job.validSSHFileTarget { return "validation.ssh_connection" }
+                if !(1...65535).contains(job.sshPort) { return "ux.invalid_port" }
+            }
         case .destination:
             if empty(job.destinationPath) { return "validation.choose_destination" }
-            if empty(job.nameMask) { return "validation.name_mask" }
+            if !job.isFolderSync && empty(job.nameMask) { return "validation.name_mask" }
         case .schedule:
-            break
+            if job.schedule == .onVolumeMount,
+               job.destinationVolume?.matches(path: job.destinationPath) != true {
+                return "disk.choose_external"
+            }
         }
         return nil
+    }
+}
+
+enum BackupTrayState: Int, CaseIterable {
+    case copying, waitingForSource, error, waitingForDisk, cancelled, notRun, paused, ready
+
+    var title: String {
+        L10n.text(["tray.copying", "tray.waiting_source", "status.failure", "disk.waiting", "status.cancelled", "ux.not_run", "job.paused", "status.ready"][rawValue])
+    }
+    var symbol: String {
+        ["arrow.triangle.2.circlepath", "hourglass", "exclamationmark.triangle", "externaldrive.badge.questionmark", "stop.circle", "clock", "pause.circle", "checkmark.circle"][rawValue]
+    }
+    static func resolve(running: Bool, phase: BackupProgressPhase?, enabled: Bool, schedulerEnabled: Bool,
+                        waitsForDisk: Bool, lastRun: BackupStatus?, pendingCount: Int = 0) -> Self {
+        if running { return phase == .waitingForSource ? .waitingForSource : .copying }
+        if !enabled || !schedulerEnabled { return .paused }
+        if waitsForDisk { return .waitingForDisk }
+        if lastRun != .failure && lastRun != .cancelled && pendingCount > 0 { return .waitingForSource }
+        switch lastRun {
+        case .failure: return .error
+        case .cancelled: return .cancelled
+        case .success: return .ready
+        case nil: return .notRun
+        }
+    }
+    static func aggregate(_ states: [Self]) -> Self { states.min(by: { $0.rawValue < $1.rawValue }) ?? .notRun }
+}
+
+struct BackupTrayAnimation {
+    enum Mode { case idle, copying, success }
+    static let rotationDuration: TimeInterval = 1.2
+    static let successDuration: TimeInterval = 1.4
+    private(set) var mode: Mode = .idle
+    private(set) var startedAt: TimeInterval = 0
+    private var pendingSuccess = false
+
+    mutating func completed(_ status: BackupStatus) {
+        pendingSuccess = status == .success
+        if status != .success && mode == .success { mode = .idle }
+    }
+
+    mutating func update(state: BackupTrayState, at time: TimeInterval) {
+        if state == .copying {
+            if mode != .copying { startedAt = time }
+            mode = .copying
+        } else if state == .error || state == .cancelled {
+            pendingSuccess = false
+            mode = .idle
+        } else if state == .waitingForSource {
+            mode = .idle
+        } else if pendingSuccess {
+            pendingSuccess = false
+            mode = .success
+            startedAt = time
+        } else if mode != .success || time - startedAt >= Self.successDuration {
+            mode = .idle
+        }
+    }
+
+    func progress(at time: TimeInterval) -> Double {
+        let elapsed = max(0, time - startedAt)
+        return mode == .copying
+            ? elapsed.truncatingRemainder(dividingBy: Self.rotationDuration) / Self.rotationDuration
+            : min(1, elapsed / Self.successDuration)
+    }
+}
+
+struct FolderSyncCheckpoint: Codable, Sendable {
+    var configuration: String
+    var files: [String: String] = [:]
+    var lastSuccess: Date?
+
+    static func configuration(for job: BackupJob) -> String {
+        [job.sourcePath, job.destinationPath, job.destinationVolume?.id ?? "", job.destinationVolume?.relativePath ?? ""].joined(separator: "\0")
+    }
+}
+
+struct FolderSyncState {
+    var checkpoint: FolderSyncCheckpoint
+    var observed: [String: String]?
+    var scanError: String?
+    var retryAfter = Date.distantPast
+    var retryNeeded = false
+    var cancelled = false
+    private var failureNotified = false
+
+    init(job: BackupJob, checkpoint: FolderSyncCheckpoint? = nil) {
+        let configuration = FolderSyncCheckpoint.configuration(for: job)
+        self.checkpoint = checkpoint?.configuration == configuration ? checkpoint! : .init(configuration: configuration)
+    }
+
+    var pendingCount: Int? {
+        observed.map { files in files.filter { $0.value != "directory" && checkpoint.files[$0.key] != $0.value }.count }
+    }
+    func shouldRun(at date: Date) -> Bool {
+        !cancelled && date >= retryAfter && (retryNeeded || checkpoint.lastSuccess == nil
+            || observed?.contains(where: { checkpoint.files[$0.key] != $0.value }) == true)
+    }
+    mutating func observe(_ files: [String: String]) {
+        if let observed, observed != files { retryAfter = .distantPast }
+        observed = files
+        scanError = nil
+        checkpoint.files = checkpoint.files.filter { files[$0.key] != nil }
+    }
+    mutating func acknowledge(path: String, stamp: String) { checkpoint.files[path] = stamp }
+    mutating func reconnect() { cancelled = false; retryAfter = .distantPast }
+    mutating func begin() { cancelled = false }
+    @discardableResult
+    mutating func finish(_ status: BackupStatus, at date: Date) -> Bool {
+        switch status {
+        case .success:
+            checkpoint.lastSuccess = date
+            retryNeeded = false; retryAfter = .distantPast; failureNotified = false
+        case .failure:
+            retryNeeded = true; retryAfter = date.addingTimeInterval(300)
+            if !failureNotified { failureNotified = true; return true }
+        case .cancelled: cancelled = true
+        }
+        return false
     }
 }

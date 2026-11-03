@@ -10,6 +10,7 @@ struct JobEditorView: View {
     @State private var passwordWasEdited = false
     @State private var passwordLoadToken = UUID()
     @State private var sourceIsDirectory = false
+    @State private var connectedVolumes = MountedBackupVolume.current()
     @State private var activeStep: JobSetupStep = .source
     @State private var furthestStep: JobSetupStep = .source
     @State private var destinationOptionsExpanded = false
@@ -88,12 +89,22 @@ struct JobEditorView: View {
         }
         .onAppear {
             loadStoredPassword()
+            refreshDestinationVolume()
+        }
+        .onChange(of: draft.destinationPath) { _, _ in refreshDestinationVolume() }
+        .onChange(of: draft.schedule) { _, _ in refreshDestinationVolume() }
+        .onReceive(NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.didMountNotification)) { _ in
+            connectedVolumes = MountedBackupVolume.current()
+            refreshDestinationVolume()
+        }
+        .onReceive(NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.didUnmountNotification)) { _ in
+            connectedVolumes = MountedBackupVolume.current()
         }
         .task(id: draft.sourcePath) {
             sourceIsDirectory = false
             let path = draft.sourcePath
             let bookmark = draft.sourceBookmark
-            guard !path.isEmpty else { return }
+            guard !path.isEmpty, !draft.isRemoteFileSource else { return }
             do { try await Task.sleep(for: .milliseconds(150)) } catch { return }
             let isDirectory = await Task.detached(priority: .utility) {
                 let source = bookmark?.resolve(matching: path) ?? URL(fileURLWithPath: path)
@@ -212,7 +223,30 @@ struct JobEditorView: View {
                 .frame(width: 250)
             }
 
-            if draft.kind == .files || draft.kind == .project || draft.kind == .sqlite {
+            EditorField(title: L10n.text("group.title")) {
+                Picker(L10n.text("group.title"), selection: $draft.groupID) {
+                    Text(L10n.text("group.none")).tag(nil as UUID?)
+                    ForEach(store.groups) { group in Text(group.name).tag(Optional(group.id)) }
+                }
+                .labelsHidden()
+            }
+
+            if draft.kind == .files {
+                EditorField(title: L10n.text("remote.source")) {
+                    Picker(L10n.text("remote.source"), selection: $draft.filesOverSSH) {
+                        Text(L10n.text("remote.local")).tag(false)
+                        Text(L10n.text("remote.ssh")).tag(true)
+                    }
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
+                }
+            }
+            if draft.isRemoteFileSource {
+                sshFields
+                EditorField(title: L10n.text("remote.folder")) {
+                    TextField("/srv/site/uploads", text: $draft.sourcePath)
+                }
+            } else if draft.kind == .files || draft.kind == .project || draft.kind == .sqlite {
                 EditorField(title: sourceFieldTitle) {
                     PathField(text: $draft.sourcePath, placeholder: L10n.text("editor.choose_source"), action: chooseSource)
                 }
@@ -243,6 +277,28 @@ struct JobEditorView: View {
         }
     }
 
+    private var sshFields: some View {
+        VStack(spacing: 12) {
+                HStack(alignment: .top, spacing: 16) {
+                    EditorField(title: L10n.text("editor.ssh_server")) {
+                        TextField("server.example.com", text: $draft.sshHost)
+                    }
+                    EditorField(title: L10n.text("editor.ssh_port")) {
+                        TextField("22", value: $draft.sshPort, format: .number.grouping(.never))
+                    }
+                    .frame(width: 150)
+                }
+                HStack(alignment: .top, spacing: 16) {
+                    EditorField(title: L10n.text("editor.ssh_user")) {
+                        TextField("deploy", text: $draft.sshUsername)
+                    }
+                    EditorField(title: L10n.text("editor.ssh_key")) {
+                        PathField(text: $draft.sshIdentityPath, placeholder: L10n.text("common.optional"), action: chooseSSHKey)
+                    }
+                }
+        }
+    }
+
     private var connectionSection: some View {
         EditorSection(title: L10n.text("common.connection"), symbol: "link") {
             EditorField(title: L10n.text("editor.connection_mode")) {
@@ -262,23 +318,7 @@ struct JobEditorView: View {
             }
 
             if draft.connectionMode == .ssh {
-                HStack(alignment: .top, spacing: 16) {
-                    EditorField(title: L10n.text("editor.ssh_server")) {
-                        TextField("server.example.com", text: $draft.sshHost)
-                    }
-                    EditorField(title: L10n.text("editor.ssh_port")) {
-                        TextField("22", value: $draft.sshPort, format: .number.grouping(.never))
-                    }
-                    .frame(width: 150)
-                }
-                HStack(alignment: .top, spacing: 16) {
-                    EditorField(title: L10n.text("editor.ssh_user")) {
-                        TextField("deploy", text: $draft.sshUsername)
-                    }
-                    EditorField(title: L10n.text("editor.ssh_key")) {
-                        PathField(text: $draft.sshIdentityPath, placeholder: L10n.text("common.optional"), action: chooseSSHKey)
-                    }
-                }
+                sshFields
             }
 
             LazyVGrid(columns: [GridItem(.flexible(), spacing: 16), GridItem(.flexible())], alignment: .leading, spacing: 12) {
@@ -398,49 +438,65 @@ struct JobEditorView: View {
 
     private var destinationSection: some View {
         EditorSection(title: L10n.text("ux.destination_title"), symbol: "folder") {
+            if draft.kind == .files && !draft.isRemoteFileSource {
+                EditorField(title: L10n.text("sync.operation")) {
+                    Picker(L10n.text("sync.operation"), selection: $draft.synchronizeFolder) {
+                        Text(L10n.text("sync.backup_mode")).tag(false)
+                        Text(L10n.text("sync.mode")).tag(true)
+                    }
+                    .labelsHidden()
+                    .pickerStyle(.segmented)
+                }
+            }
             EditorField(title: L10n.text("editor.backup_folder")) {
                 PathField(text: $draft.destinationPath, placeholder: L10n.text("editor.choose_folder"), action: chooseDestination)
             }
-            EditorToggle(title: L10n.text("editor.create_archive"),
-                         hint: L10n.text("editor.create_archive_hint"), isOn: $draft.archiveOutput)
-            if draft.hasDatabaseSource { databaseSpaceSection }
+            if draft.isFolderSync {
+                Text(L10n.text("sync.keep_files"))
+                    .font(.system(size: 12)).foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            } else {
+                EditorToggle(title: L10n.text("editor.create_archive"),
+                             hint: L10n.text("editor.create_archive_hint"), isOn: $draft.archiveOutput)
+                if draft.hasDatabaseSource { databaseSpaceSection }
 
-            DisclosureGroup(isExpanded: $destinationOptionsExpanded) {
-                VStack(alignment: .leading, spacing: 18) {
-                    EditorField(title: L10n.text("editor.output_name_mask")) {
-                        TextField(BackupJob.defaultNameMask, text: $draft.nameMask)
-                            .font(.system(size: 13, design: .monospaced))
-                            .accessibilityLabel(L10n.text("editor.output_name_mask"))
-                    }
-                    Text(L10n.text("editor.name_mask_hint"))
-                        .font(.system(size: 11)).foregroundStyle(.secondary)
-                    EditorToggle(title: L10n.text("editor.retention"),
-                                 hint: L10n.text("editor.retention_hint"), isOn: retentionEnabledBinding)
-                    if draft.retentionCount > 0 {
-                        Stepper(value: $draft.retentionCount, in: 1...100) {
-                            Text(L10n.text("editor.keep_last_count", draft.retentionCount))
+                DisclosureGroup(isExpanded: $destinationOptionsExpanded) {
+                    VStack(alignment: .leading, spacing: 18) {
+                        EditorField(title: L10n.text("editor.output_name_mask")) {
+                            TextField(BackupJob.defaultNameMask, text: $draft.nameMask)
+                                .font(.system(size: 13, design: .monospaced))
+                                .accessibilityLabel(L10n.text("editor.output_name_mask"))
                         }
-                        Text(L10n.text("editor.retention_safety_note"))
+                        Text(L10n.text("editor.name_mask_hint"))
+                            .font(.system(size: 11)).foregroundStyle(.secondary)
+                        EditorToggle(title: L10n.text("editor.retention"),
+                                     hint: L10n.text("editor.retention_hint"), isOn: retentionEnabledBinding)
+                        if draft.retentionCount > 0 {
+                            Stepper(value: $draft.retentionCount, in: 1...100) {
+                                Text(L10n.text("editor.keep_last_count", draft.retentionCount))
+                            }
+                            Text(L10n.text("editor.retention_safety_note"))
+                                .font(.system(size: 11)).foregroundStyle(.secondary)
+                        }
+                    }
+                    .padding(.top, 16)
+                } label: {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(L10n.text("ux.output_options")).fontWeight(.medium)
+                        Text(L10n.text("ux.output_options_hint"))
                             .font(.system(size: 11)).foregroundStyle(.secondary)
                     }
                 }
-                .padding(.top, 16)
-            } label: {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(L10n.text("ux.output_options")).fontWeight(.medium)
-                    Text(L10n.text("ux.output_options_hint"))
-                        .font(.system(size: 11)).foregroundStyle(.secondary)
-                }
-            }
-            .padding(.vertical, 12)
+                .padding(.vertical, 12)
 
-            Text(L10n.text("editor.name_preview", outputNamePreview))
-                .font(.system(size: 12, design: .monospaced))
-                .textSelection(.enabled)
-                .fixedSize(horizontal: false, vertical: true)
-                .padding(12)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(AppTheme.raised, in: RoundedRectangle(cornerRadius: 8))
+                Text(L10n.text("editor.name_preview", outputNamePreview))
+                    .font(.system(size: 12, design: .monospaced))
+                    .textSelection(.enabled)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(AppTheme.raised, in: RoundedRectangle(cornerRadius: 8))
+            }
         }
     }
 
@@ -646,8 +702,8 @@ struct JobEditorView: View {
     private var scheduleSection: some View {
         EditorSection(title: L10n.text("ux.schedule_title"), symbol: "clock") {
             HStack(alignment: .bottom, spacing: 16) {
-                EditorField(title: L10n.text("editor.repeat")) {
-                    Picker(L10n.text("editor.repeat"), selection: $draft.schedule) {
+                EditorField(title: L10n.text("disk.trigger")) {
+                    Picker(L10n.text("disk.trigger"), selection: $draft.schedule) {
                         ForEach(ScheduleKind.allCases) { schedule in
                             Text(schedule.title).tag(schedule)
                         }
@@ -661,6 +717,23 @@ struct JobEditorView: View {
                         .fixedSize()
                         .padding(.bottom, 4)
                 }
+            }
+
+            if draft.schedule == .onVolumeMount {
+                HStack(spacing: 12) {
+                    Image(systemName: "externaldrive").font(.system(size: 22)).foregroundStyle(AppTheme.accent)
+                    if let binding = draft.destinationVolume, binding.matches(path: draft.destinationPath) {
+                        Text(binding.name).fontWeight(.medium)
+                        Spacer()
+                        Text(L10n.text(binding.destination(in: connectedVolumes) != nil ? "disk.connected" : "disk.disconnected"))
+                            .foregroundStyle(.secondary)
+                    } else {
+                        Button(L10n.text("disk.choose_folder"), action: chooseDestination)
+                        Spacer()
+                    }
+                }
+                .padding(12)
+                .background(AppTheme.raised, in: RoundedRectangle(cornerRadius: 8))
             }
 
             HStack(alignment: .bottom, spacing: 24) {
@@ -703,14 +776,10 @@ struct JobEditorView: View {
 
     private var scheduleReview: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Label(L10n.text("settings.schedule_note"), systemImage: "info.circle")
-                .font(.system(size: 12)).foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-            Divider()
             MetadataRow(title: L10n.text("editor.name"), value: draft.name)
             MetadataRow(title: L10n.text("job.destination_folder"), value: draft.destinationPath)
             MetadataRow(title: L10n.text("job.output_format"),
-                        value: L10n.text(draft.archiveOutput ? "job.archive_enabled" : "job.archive_disabled"))
+                        value: draft.outputDescription)
             MetadataRow(title: L10n.text("job.next_run"),
                         value: BackupScheduleState(job: draft, schedulerEnabled: store.schedulerEnabled, isRunning: false).text)
             if draft.hasDatabaseSource && !draft.excludedDatabaseTables.isEmpty {
@@ -764,6 +833,7 @@ struct JobEditorView: View {
             ? JobSetupStep.allCases.compactMap { $0.validationKey(for: draft) }.first
             : activeStep.validationKey(for: draft)
         if let key { return L10n.text(key) }
+        if draft.isFolderSync && !sourceIsDirectory { return L10n.text("sync.choose_source_folder") }
         if draft.hasDatabaseSource && (activeStep == .source || activeStep == .schedule) {
             if let databaseCatalog {
                 if let error = databaseCatalog.selectionError(excluding: draft.excludedDatabaseTables) { return error }
@@ -862,7 +932,7 @@ struct JobEditorView: View {
         let panel = NSOpenPanel()
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = draft.kind == .files || draft.kind == .project
-        panel.canChooseFiles = draft.kind != .project
+        panel.canChooseFiles = draft.kind != .project && !draft.isFolderSync
         panel.prompt = L10n.text("picker.choose")
         if panel.runModal() == .OK, let url = panel.url {
             draft.sourcePath = url.path
@@ -895,7 +965,16 @@ struct JobEditorView: View {
         if panel.runModal() == .OK, let url = panel.url {
             draft.destinationPath = url.path
             draft.destinationBookmark = SecurityScopedBookmark.create(for: url)
+            draft.destinationVolume = BackupVolumeBinding.capture(for: url)
         }
+    }
+
+    private func refreshDestinationVolume() {
+        guard draft.destinationVolume?.matches(path: draft.destinationPath) != true else { return }
+        let url = draft.destinationBookmark?.resolve(matching: draft.destinationPath)
+            ?? URL(fileURLWithPath: draft.destinationPath)
+        draft.destinationVolume = draft.destinationPath.isEmpty ? nil : BackupVolumeBinding.capture(for: url)
+        draft.destinationVolume?.configuredPath = URL(fileURLWithPath: draft.destinationPath).standardized.path
     }
 
     private func chooseClientExecutable() {

@@ -6,11 +6,14 @@ import SQLite3
 enum BackupEngineError: LocalizedError {
     case invalidConfiguration(String)
     case commandFailed(String)
+    case sourceNotReady(String)
 
     var errorDescription: String? {
         switch self {
         case .invalidConfiguration(let message), .commandFailed(let message):
             return message
+        case .sourceNotReady(let path):
+            return L10n.text("sync.source_not_ready", path)
         }
     }
 }
@@ -24,6 +27,75 @@ struct BackupResult {
 struct BackupProgressEvent: Sendable {
     var fraction: Double
     var message: String
+    var phase: BackupProgressPhase = .copying
+    var syncedFile: (path: String, stamp: String)? = nil
+}
+
+enum BackupProgressPhase: Sendable { case copying, verifying, waitingForSource }
+
+struct FolderSyncPolicy: Sendable {
+    var quietPeriod: Duration = .seconds(2)
+    var retryDelays: [Duration] = [2, 5, 15, 30, 60, 120].map { .seconds($0) }
+
+    static func isUnfinished(_ relativePath: String) -> Bool {
+        relativePath.split(separator: "/").contains { component in
+            ["tmp", "part", "partial", "crdownload", "inprogress"].contains((String(component) as NSString).pathExtension.lowercased())
+        }
+    }
+}
+
+private struct SyncFileStamp: Equatable {
+    let device: dev_t
+    let inode: ino_t
+    let size: off_t
+    let mode: mode_t
+    let modifiedSeconds: Int
+    let modifiedNanos: Int
+    let changedSeconds: Int
+    let changedNanos: Int
+
+    init(_ info: stat) {
+        device = info.st_dev; inode = info.st_ino; size = info.st_size; mode = info.st_mode
+        modifiedSeconds = info.st_mtimespec.tv_sec; modifiedNanos = info.st_mtimespec.tv_nsec
+        changedSeconds = info.st_ctimespec.tv_sec; changedNanos = info.st_ctimespec.tv_nsec
+    }
+    var kind: mode_t { mode & S_IFMT }
+    var signature: String {
+        kind == S_IFDIR ? "directory" : "\(device):\(inode):\(size):\(mode):\(modifiedSeconds):\(modifiedNanos):\(changedSeconds):\(changedNanos)"
+    }
+    static func read(_ path: String) throws -> Self {
+        var info = stat()
+        guard lstat(path, &info) == 0 else {
+            if errno == ENOENT { throw BackupEngineError.sourceNotReady(path) }
+            throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO)
+        }
+        return .init(info)
+    }
+    static func read(_ descriptor: Int32) throws -> Self {
+        var info = stat()
+        guard fstat(descriptor, &info) == 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
+        return .init(info)
+    }
+}
+
+private final class SyncDescriptor {
+    let value: Int32
+    init(_ value: Int32) throws {
+        guard value >= 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
+        self.value = value
+    }
+    deinit { close(value) }
+
+    func directory(_ components: ArraySlice<String>) throws -> SyncDescriptor {
+        var current = self
+        for name in components {
+            if mkdirat(current.value, name, 0o755) != 0 && errno != EEXIST {
+                throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO)
+            }
+            current = try SyncDescriptor(openat(current.value, name, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC))
+        }
+        return current
+    }
 }
 
 private final class ProcessLogBuffer: @unchecked Sendable {
@@ -75,8 +147,10 @@ private final class ScopedJobAccess: @unchecked Sendable {
         let destinationBookmark = job.destinationBookmark
         let clientBookmark = job.clientExecutableBookmark
         let identityBookmark = job.sshIdentityBookmark
-        resolve(path: &self.job.sourcePath, bookmark: sourceBookmark)
-        resolve(path: &self.job.destinationPath, bookmark: destinationBookmark)
+        if !job.isRemoteFileSource { resolve(path: &self.job.sourcePath, bookmark: sourceBookmark) }
+        let destinationMatch = job.destinationVolume?.matches(path: job.destinationPath) == true
+            ? destinationBookmark?.originalPath : nil
+        resolve(path: &self.job.destinationPath, bookmark: destinationBookmark, matching: destinationMatch)
         resolve(path: &self.job.clientExecutablePath, bookmark: clientBookmark)
         resolve(path: &self.job.sshIdentityPath, bookmark: identityBookmark)
     }
@@ -86,8 +160,8 @@ private final class ScopedJobAccess: @unchecked Sendable {
         accessedURLs.removeAll()
     }
 
-    private func resolve(path: inout String, bookmark: SecurityScopedBookmark?) {
-        guard !path.isEmpty, let resolvedURL = bookmark?.resolve(matching: path) else { return }
+    private func resolve(path: inout String, bookmark: SecurityScopedBookmark?, matching matchPath: String? = nil) {
+        guard !path.isEmpty, let resolvedURL = bookmark?.resolve(matching: matchPath ?? path) else { return }
         path = resolvedURL.path
         if resolvedURL.startAccessingSecurityScopedResource() {
             accessedURLs.append(resolvedURL)
@@ -240,6 +314,8 @@ private struct SQLiteSQLToken {
 struct BackupEngine {
     typealias ProgressHandler = @Sendable (BackupProgressEvent) async -> Void
     var diskSpace: @Sendable (URL) throws -> DiskSpaceAvailability = { try BackupEngine.diskSpaceAvailability($0) }
+    var syncPolicy = FolderSyncPolicy()
+    var rsyncSSHExecutable = "/usr/bin/ssh"
 
     func inspectDatabase(job: BackupJob, password: String) async throws -> DatabaseCatalog {
         try Task.checkCancellation()
@@ -694,15 +770,32 @@ struct BackupEngine {
     func run(
         job: BackupJob,
         password: String,
+        verifiedSyncFiles: [String: String] = [:],
         onProgress: @escaping ProgressHandler = { _ in }
     ) async throws -> BackupResult {
         try Task.checkCancellation()
+        if job.schedule == .onVolumeMount && job.destinationVolume == nil {
+            throw BackupEngineError.invalidConfiguration(L10n.text("disk.choose_external"))
+        }
+        if let binding = job.destinationVolume {
+            guard binding.matches(path: job.destinationPath),
+                  binding.destination(in: MountedBackupVolume.current()) != nil else {
+                throw BackupEngineError.invalidConfiguration(L10n.text("disk.unavailable", binding.name))
+            }
+        }
         let scopedAccess = ScopedJobAccess(job: job)
         var job = scopedAccess.job
         defer { scopedAccess.stop() }
 
+        if let binding = job.destinationVolume {
+            job.destinationPath = try binding.connectedDestination().path
+        }
+
         await onProgress(.init(fraction: 0.02, message: L10n.text("log.preparing")))
         try validate(job)
+        if job.isFolderSync {
+            return try await synchronizeFolder(job: job, verifiedFiles: verifiedSyncFiles, onProgress: onProgress)
+        }
 
         var catalog: DatabaseCatalog?
         if job.hasDatabaseSource {
@@ -720,6 +813,10 @@ struct BackupEngine {
             }
             job.excludedDatabaseTables = catalog.effectiveExclusions(job.excludedDatabaseTables)
                 .sorted { $0.displayName < $1.displayName }
+        }
+        try Task.checkCancellation()
+        if let binding = job.destinationVolume {
+            job.destinationPath = try binding.connectedDestination().path
         }
         let preparedJob = job
 
@@ -1010,12 +1107,240 @@ struct BackupEngine {
                         ["PRAGMA journal_mode=\(journalMode);"]).joined(separator: "\n"))
     }
 
+    func syncSourceSnapshot(job: BackupJob) throws -> [String: String] {
+        let access = ScopedJobAccess(job: job)
+        defer { access.stop() }
+        let source = URL(fileURLWithPath: access.job.sourcePath, isDirectory: true).resolvingSymlinksInPath()
+        guard let canonical = realpath(source.path, nil) else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
+        let prefix = String(cString: canonical).trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        free(canonical)
+        let root = "/" + prefix + (prefix.isEmpty ? "" : "/")
+        guard try SyncFileStamp.read(source.path).kind == S_IFDIR else {
+            throw BackupEngineError.invalidConfiguration(L10n.text("sync.choose_source_folder"))
+        }
+        var result: [String: String] = [:]
+        for url in try directoryEntries(at: source, keys: [], excluding: []) {
+            guard url.path.hasPrefix(root) else { throw BackupEngineError.invalidConfiguration(L10n.text("sync.overlapping_paths")) }
+            do { result[String(url.path.dropFirst(root.count))] = try SyncFileStamp.read(url.path).signature }
+            catch BackupEngineError.sourceNotReady { continue }
+        }
+        return result
+    }
+
+    func copyColdStorageOutput(from source: URL, to target: URL, root: URL,
+                               checkDestination: () throws -> Void, onProgress: @escaping ProgressHandler) async throws -> Int64 {
+        guard let resolvedSource = realpath(source.path, nil) else { throw BackupEngineError.sourceNotReady(source.path) }
+        let source = URL(fileURLWithPath: String(cString: resolvedSource))
+        free(resolvedSource)
+        let canonicalSource = source.standardizedFileURL.resolvingSymlinksInPath()
+        let canonicalRoot = root.standardizedFileURL.resolvingSymlinksInPath()
+        guard !canonicalSource.pathComponents.starts(with: canonicalRoot.pathComponents),
+              !canonicalRoot.pathComponents.starts(with: canonicalSource.pathComponents) else {
+            throw BackupEngineError.invalidConfiguration(L10n.text("sync.overlapping_paths"))
+        }
+        try checkDestination()
+        var ancestor = root.standardizedFileURL
+        while !FileManager.default.fileExists(atPath: ancestor.path) { ancestor.deleteLastPathComponent() }
+        guard ancestor.standardizedFileURL == ancestor.resolvingSymlinksInPath() else {
+            throw BackupEngineError.commandFailed(L10n.text("sync.path_conflict", root.path))
+        }
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        let descriptor = try SyncDescriptor(open(root.path, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC))
+        let sourceStamp = try SyncFileStamp.read(source.path)
+        guard sourceStamp.kind == S_IFREG || sourceStamp.kind == S_IFDIR else {
+            throw BackupEngineError.commandFailed(L10n.text("sync.path_conflict", source.path))
+        }
+        let entries = sourceStamp.kind == S_IFDIR ? [source] + (try directoryEntries(at: source, keys: [], excluding: [])) : [source]
+        let stamps = try entries.map { try SyncFileStamp.read($0.path) }
+        var bytes: Int64 = 0
+        for (index, entry) in entries.enumerated() {
+            try checkDestination()
+            let suffix = entry.pathComponents.dropFirst(source.pathComponents.count)
+            let output = suffix.reduce(target) { $0.appendingPathComponent($1) }
+            let components = output.pathComponents.dropFirst(root.pathComponents.count)
+            guard !components.isEmpty, output.pathComponents.starts(with: root.pathComponents),
+                  !components.contains("..") else { throw BackupEngineError.commandFailed(L10n.text("sync.path_conflict", output.path)) }
+            let stamp = stamps[index]
+            if stamp.kind == S_IFDIR { _ = try descriptor.directory(components[...]) }
+            else {
+                let parent = try descriptor.directory(components.dropLast())
+                try await synchronizeFile(entry, stamp: stamp, parent: parent, name: components.last!, fraction: Double(index) / Double(entries.count), checkDestination: checkDestination, onProgress: onProgress)
+                bytes += Int64(stamp.size)
+            }
+            await onProgress(.init(fraction: Double(index + 1) / Double(entries.count), message: entry.lastPathComponent))
+        }
+        try checkDestination()
+        let after = sourceStamp.kind == S_IFDIR ? [source] + (try directoryEntries(at: source, keys: [], excluding: [])) : [source]
+        guard Set(after) == Set(entries), try zip(entries, stamps).allSatisfy({ try SyncFileStamp.read($0.0.path) == $0.1 }) else {
+            throw BackupEngineError.sourceNotReady(source.path)
+        }
+        guard fsync(descriptor.value) == 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
+        return bytes
+    }
+
+    private func synchronizeFolder(job: BackupJob, verifiedFiles: [String: String], onProgress: @escaping ProgressHandler) async throws -> BackupResult {
+        try Task.checkCancellation()
+        let source = URL(fileURLWithPath: job.sourcePath, isDirectory: true).resolvingSymlinksInPath()
+        let destination = URL(fileURLWithPath: job.destinationPath, isDirectory: true).resolvingSymlinksInPath()
+        guard let canonical = realpath(source.path, nil) else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
+        let sourcePrefix = String(cString: canonical).trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        free(canonical)
+        let prefix = "/" + sourcePrefix + (sourcePrefix.isEmpty ? "" : "/")
+        func checkDestination() throws {
+            try Task.checkCancellation()
+            if let binding = job.destinationVolume { _ = try binding.connectedDestination() }
+        }
+        try checkDestination()
+        try FileManager.default.createDirectory(at: destination, withIntermediateDirectories: true)
+        let root = try SyncDescriptor(open(destination.path, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC))
+        await onProgress(.init(fraction: 0.12, message: L10n.text("sync.copying")))
+        for attempt in 0...syncPolicy.retryDelays.count {
+            try checkDestination()
+            var pending: String?
+            var entries: [(URL, SyncFileStamp)] = []
+            for url in try directoryEntries(at: source, keys: [], excluding: []).sorted(by: { $0.path < $1.path }) {
+                do { entries.append((url, try SyncFileStamp.read(url.path))) }
+                catch BackupEngineError.sourceNotReady { pending = url.path }
+            }
+            if !entries.isEmpty { try await Task.sleep(for: syncPolicy.quietPeriod) }
+            for (index, entry) in entries.enumerated() {
+                let (url, stamp) = entry
+                try checkDestination()
+                guard url.path.hasPrefix(prefix) else { throw BackupEngineError.invalidConfiguration(L10n.text("sync.overlapping_paths")) }
+                let relative = String(url.path.dropFirst(prefix.count))
+                if FolderSyncPolicy.isUnfinished(relative) { pending = url.path; continue }
+                if verifiedFiles[relative] == stamp.signature { continue }
+                let components = relative.split(separator: "/").map(String.init)
+                guard !components.isEmpty, !components.contains("..") else { throw BackupEngineError.invalidConfiguration(L10n.text("sync.overlapping_paths")) }
+                let fraction = 0.12 + 0.8 * Double(index) / Double(max(entries.count, 1))
+                do {
+                    if stamp.kind == S_IFDIR {
+                        _ = try root.directory(components[...])
+                        await onProgress(.init(fraction: fraction, message: relative, syncedFile: (relative, stamp.signature)))
+                        continue
+                    }
+                    let parent = try root.directory(components.dropLast())
+                    try await synchronizeFile(url, stamp: stamp, parent: parent, name: components.last!, fraction: fraction,
+                                              checkDestination: checkDestination, onProgress: onProgress)
+                    await onProgress(.init(fraction: fraction, message: relative, syncedFile: (relative, stamp.signature)))
+                } catch BackupEngineError.sourceNotReady { pending = url.path }
+            }
+            try checkDestination()
+            guard let pending else {
+                await onProgress(.init(fraction: 1, message: L10n.text("sync.completed")))
+                return BackupResult(outputURL: destination, message: L10n.text("sync.completed"))
+            }
+            guard attempt < syncPolicy.retryDelays.count else { throw BackupEngineError.sourceNotReady(pending) }
+            await onProgress(.init(fraction: 0.12, message: L10n.text("sync.waiting_source", pending), phase: .waitingForSource))
+            try await Task.sleep(for: syncPolicy.retryDelays[attempt])
+        }
+        throw BackupEngineError.commandFailed(L10n.text("sync.verification_failed"))
+    }
+
+    private func synchronizeFile(
+        _ source: URL, stamp: SyncFileStamp, parent: SyncDescriptor, name: String, fraction: Double,
+        checkDestination: () throws -> Void, onProgress: @escaping ProgressHandler
+    ) async throws {
+        func checkSource() throws {
+            guard try SyncFileStamp.read(source.path) == stamp else { throw BackupEngineError.sourceNotReady(source.path) }
+        }
+        func targetInfo() throws -> stat? {
+            var info = stat()
+            if fstatat(parent.value, name, &info, AT_SYMLINK_NOFOLLOW) == 0 { return info }
+            if errno == ENOENT { return nil }
+            throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO)
+        }
+        try checkSource()
+        let temporary = ".BackupCron-sync-\(UUID())"
+        defer { unlinkat(parent.value, temporary, 0) }
+        if stamp.kind == S_IFLNK {
+            let link = try FileManager.default.destinationOfSymbolicLink(atPath: source.path)
+            if let info = try targetInfo() {
+                var buffer = [CChar](repeating: 0, count: Int(PATH_MAX) + 1)
+                let length = readlinkat(parent.value, name, &buffer, buffer.count - 1)
+                if info.st_mode & S_IFMT == S_IFLNK, length >= 0, String(cString: buffer) == link { try checkSource(); return }
+                throw BackupEngineError.commandFailed(L10n.text("sync.path_conflict", name))
+            }
+            guard symlinkat(link, parent.value, temporary) == 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
+            try checkDestination(); try checkSource()
+            guard renameatx_np(parent.value, temporary, parent.value, name, UInt32(RENAME_EXCL)) == 0 else {
+                throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO)
+            }
+            return
+        }
+        guard stamp.kind == S_IFREG else { throw BackupEngineError.commandFailed(L10n.text("sync.path_conflict", source.path)) }
+        let fd = open(source.path, O_RDONLY | O_NOFOLLOW | O_NONBLOCK | O_CLOEXEC)
+        if fd < 0 && (errno == ENOENT || errno == ELOOP) { throw BackupEngineError.sourceNotReady(source.path) }
+        let input = try SyncDescriptor(fd)
+        guard flock(input.value, LOCK_SH | LOCK_NB) == 0 else {
+            if errno == EWOULDBLOCK { throw BackupEngineError.sourceNotReady(source.path) }
+            throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO)
+        }
+        guard try SyncFileStamp.read(input.value) == stamp else { throw BackupEngineError.sourceNotReady(source.path) }
+        await onProgress(.init(fraction: fraction, message: L10n.text("sync.copying")))
+        if let info = try targetInfo() {
+            guard info.st_mode & S_IFMT == S_IFREG else { throw BackupEngineError.commandFailed(L10n.text("sync.path_conflict", name)) }
+            if info.st_size == stamp.size {
+                let existing = try SyncDescriptor(openat(parent.value, name, O_RDONLY | O_NOFOLLOW | O_NONBLOCK | O_CLOEXEC))
+                let sourceHash = try syncDigest(input.value, sourceStamp: stamp, sourcePath: source.path)
+                let targetHash = try syncDigest(existing.value)
+                try checkSource()
+                guard try SyncFileStamp.read(input.value) == stamp else { throw BackupEngineError.sourceNotReady(source.path) }
+                if sourceHash == targetHash { return }
+            }
+        }
+        let output = try SyncDescriptor(openat(parent.value, temporary, O_RDWR | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC, stamp.mode & 0o777))
+        let copiedHash = try syncDigest(input.value, copyingTo: output.value, sourceStamp: stamp, sourcePath: source.path)
+        guard fsync(output.value) == 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
+        await onProgress(.init(fraction: fraction, message: L10n.text("log.verifying"), phase: .verifying))
+        guard try syncDigest(output.value) == copiedHash else { throw BackupEngineError.commandFailed(L10n.text("sync.verification_failed")) }
+        guard try syncDigest(input.value, sourceStamp: stamp, sourcePath: source.path) == copiedHash, try SyncFileStamp.read(input.value) == stamp else { throw BackupEngineError.sourceNotReady(source.path) }
+        var times = [timespec(tv_sec: stamp.modifiedSeconds, tv_nsec: stamp.modifiedNanos), timespec(tv_sec: stamp.modifiedSeconds, tv_nsec: stamp.modifiedNanos)]
+        guard futimens(output.value, &times) == 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
+        try checkDestination(); try checkSource()
+        if let info = try targetInfo(), info.st_mode & S_IFMT != S_IFREG { throw BackupEngineError.commandFailed(L10n.text("sync.path_conflict", name)) }
+        guard renameat(parent.value, temporary, parent.value, name) == 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
+    }
+
+    private func syncDigest(_ input: Int32, copyingTo output: Int32? = nil, sourceStamp: SyncFileStamp? = nil, sourcePath: String = "") throws -> SHA256.Digest {
+        guard lseek(input, 0, SEEK_SET) >= 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
+        var hash = SHA256()
+        var bytes = [UInt8](repeating: 0, count: 1024 * 1024)
+        while true {
+            try Task.checkCancellation()
+            if let sourceStamp, try SyncFileStamp.read(input) != sourceStamp { throw BackupEngineError.sourceNotReady(sourcePath) }
+            let count = read(input, &bytes, bytes.count)
+            if count == 0 { return hash.finalize() }
+            if count < 0 {
+                if errno == EINTR { continue }
+                throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO)
+            }
+            hash.update(data: Data(bytes.prefix(count)))
+            if let output {
+                try bytes.withUnsafeBytes { buffer in
+                    var offset = 0
+                    while offset < count {
+                        try Task.checkCancellation()
+                        let written = write(output, buffer.baseAddress!.advanced(by: offset), count - offset)
+                        if written < 0 && errno == EINTR { continue }
+                        guard written > 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
+                        offset += written
+                    }
+                }
+            }
+        }
+    }
+
     private func backupFiles(
         job: BackupJob,
         destinationDirectory: URL,
         baseName: String,
         onProgress: @escaping ProgressHandler
     ) async throws -> BackupResult {
+        if job.isRemoteFileSource {
+            return try await backupRemoteFiles(job: job, destinationDirectory: destinationDirectory,
+                                               baseName: baseName, onProgress: onProgress)
+        }
         let source = URL(fileURLWithPath: job.sourcePath)
         let isDirectory = (try? source.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) == true
         await onProgress(.init(fraction: 0.12, message: L10n.text("log.copying_files")))
@@ -1055,6 +1380,38 @@ struct BackupEngine {
             throw error
         }
         return BackupResult(outputURL: output, message: L10n.text("engine.files_copied"))
+    }
+
+    func remoteFileArguments(job: BackupJob, destination: URL) -> [String] {
+        var shell = [rsyncSSHExecutable, "-o", "BatchMode=yes", "-o", "StrictHostKeyChecking=yes",
+                     "-o", "ConnectTimeout=15", "-o", "ServerAliveInterval=15",
+                     "-o", "ServerAliveCountMax=3", "-p", String(job.sshPort), "-l", job.sshUsername]
+        if !job.sshIdentityPath.isEmpty { shell += ["-i", job.sshIdentityPath] }
+        let path = job.sourcePath.hasSuffix("/") ? job.sourcePath : job.sourcePath + "/"
+        return ["-rltp", "--timeout=120", "--stats", "--rsh", shell.map(shellQuoted).joined(separator: " "),
+                "--", job.sshHost + ":" + shellQuoted(path), destination.path + "/"]
+    }
+
+    private func backupRemoteFiles(job: BackupJob, destinationDirectory: URL, baseName: String,
+                                   onProgress: @escaping ProgressHandler) async throws -> BackupResult {
+        let folder = destinationDirectory.appendingPathComponent(baseName, isDirectory: true)
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: false,
+                                               attributes: [.posixPermissions: 0o700])
+        await onProgress(.init(fraction: 0.12, message: L10n.text("log.copying_files")))
+        try await execute(executable: try resolveLocalTool(named: "rsync", customPath: ""),
+                          arguments: remoteFileArguments(job: job, destination: folder),
+                          environment: commandEnvironment(), logStandardOutput: true,
+                          onLog: { await onProgress(.init(fraction: 0.5, message: $0)) })
+        try Task.checkCancellation()
+        if job.archiveOutput {
+            let archive = destinationDirectory.appendingPathComponent(baseName + ".zip")
+            await onProgress(.init(fraction: 0.75, message: L10n.text("log.creating_archive")))
+            try await execute(executable: "/usr/bin/ditto",
+                              arguments: ["-c", "-k", "--sequesterRsrc", "--keepParent", folder.path, archive.path],
+                              onLog: { await onProgress(.init(fraction: 0.85, message: $0)) })
+            return BackupResult(outputURL: archive, message: L10n.text("engine.archive_created"))
+        }
+        return BackupResult(outputURL: folder, message: L10n.text("engine.files_copied"))
     }
 
     private func backupProject(
@@ -1285,14 +1642,18 @@ struct BackupEngine {
         guard !job.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             throw BackupEngineError.invalidConfiguration(L10n.text("engine.enter_job_name"))
         }
-        guard !job.nameMask.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+        guard job.isFolderSync || !job.nameMask.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             throw BackupEngineError.invalidConfiguration(L10n.text("validation.name_mask"))
         }
         guard !job.destinationPath.isEmpty else {
             throw BackupEngineError.invalidConfiguration(L10n.text("engine.choose_backup_folder"))
         }
 
-        if job.kind == .files || job.kind == .project || job.kind == .sqlite {
+        if job.isRemoteFileSource {
+            if let key = JobSetupStep.source.validationKey(for: job) {
+                throw BackupEngineError.invalidConfiguration(L10n.text(key))
+            }
+        } else if job.kind == .files || job.kind == .project || job.kind == .sqlite {
             guard !job.sourcePath.isEmpty, FileManager.default.fileExists(atPath: job.sourcePath) else {
                 throw BackupEngineError.invalidConfiguration(L10n.text("engine.source_not_found"))
             }
@@ -1305,7 +1666,18 @@ struct BackupEngine {
             }
         }
 
-        if job.kind == .files || job.kind == .project {
+        if job.isFolderSync {
+            guard (try? URL(fileURLWithPath: job.sourcePath).resourceValues(forKeys: [.isDirectoryKey]).isDirectory) == true else {
+                throw BackupEngineError.invalidConfiguration(L10n.text("sync.choose_source_folder"))
+            }
+            let source = resolvedLocation(job.sourcePath)
+            let destination = resolvedLocation(job.destinationPath)
+            guard !source.pathComponents.starts(with: destination.pathComponents) else {
+                throw BackupEngineError.invalidConfiguration(L10n.text("sync.overlapping_paths"))
+            }
+        }
+
+        if (job.kind == .files || job.kind == .project) && !job.isRemoteFileSource {
             let source = resolvedLocation(job.sourcePath)
             let destination = resolvedLocation(job.destinationPath)
             guard !destination.pathComponents.starts(with: source.pathComponents) else {
@@ -1584,6 +1956,8 @@ struct BackupEngine {
         environment: [String: String]? = nil,
         standardOutputURL: URL? = nil,
         standardInputURL: URL? = nil,
+        workingDirectory: URL? = nil,
+        logStandardOutput: Bool = false,
         onLog: @escaping @Sendable (String) async -> Void
     ) async throws {
         try Task.checkCancellation()
@@ -1608,9 +1982,11 @@ struct BackupEngine {
             let logDeliveryGroup = DispatchGroup()
             process.executableURL = URL(fileURLWithPath: executable)
             process.arguments = arguments
+            process.currentDirectoryURL = workingDirectory
             process.environment = environment
             process.standardInput = inputHandle ?? FileHandle.nullDevice
-            process.standardOutput = outputHandle ?? FileHandle.nullDevice
+            if logStandardOutput { process.standardOutput = errorPipe }
+            else { process.standardOutput = outputHandle ?? FileHandle.nullDevice }
             process.standardError = errorPipe
             let cancelledBeforeLaunch = processController.attach(process)
 

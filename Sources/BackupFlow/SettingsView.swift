@@ -265,9 +265,6 @@ struct SettingsView: View {
         Form {
             Section(L10n.text("common.schedule")) {
                 Toggle(L10n.text("settings.run_automatically"), isOn: $store.schedulerEnabled)
-                Text(L10n.text("settings.schedule_note"))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
             }
             Section(L10n.text("settings_backup.startup")) {
                 Toggle(

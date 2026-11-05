@@ -391,17 +391,7 @@ private struct BackupCronMenuView: View {
                 .accessibilityLabel(L10n.text("common.edit") + " — " + job.name)
                 .accessibilityIdentifier("tray-edit-\(job.id)")
             }
-            if job.isFolderSync && job.schedule == .onVolumeMount {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(L10n.text("sync.pending") + ": " + store.syncPendingText(for: job))
-                    if let date = store.folderSyncStates[job.id]?.checkpoint.lastSuccess {
-                        Text(L10n.text("ux.last_success") + ": " + date.formatted(date: .abbreviated, time: .shortened))
-                    }
-                }
-                .font(.system(size: 11))
-                .foregroundStyle(.secondary)
-                .padding(.leading, 38)
-            }
+            jobTiming(job)
             HStack {
                 let running = store.runningJobIDs.contains(job.id)
                 let diskUnavailable = job.schedule == .onVolumeMount
@@ -432,6 +422,32 @@ private struct BackupCronMenuView: View {
             .padding(.top, 3)
         }
         .padding(.vertical, 10)
+    }
+
+    private func jobTiming(_ job: BackupJob) -> some View {
+        TimelineView(.periodic(from: .now, by: 30)) { context in
+            let running = store.runningJobIDs.contains(job.id)
+            let snapshot = JobSnapshot(jobID: job.id, history: store.history, isRunning: running)
+            let lastSuccess = store.folderSyncStates[job.id]?.checkpoint.lastSuccess
+                ?? snapshot.latestSuccess?.finishedAt
+            VStack(alignment: .leading, spacing: 3) {
+                Text(L10n.text("ux.last_success") + ": "
+                     + (lastSuccess?.formatted(date: .abbreviated, time: .shortened)
+                        ?? L10n.text("ux.no_success")))
+                if job.isFolderSync && job.schedule == .onVolumeMount {
+                    Text(L10n.text("sync.pending") + ": " + store.syncPendingText(for: job))
+                } else {
+                    Text(L10n.text("job.next_run") + ": " + BackupScheduleState(
+                        job: job, schedulerEnabled: store.schedulerEnabled,
+                        isRunning: running, now: context.date
+                    ).text)
+                }
+            }
+            .font(.system(size: 11))
+            .foregroundStyle(.secondary)
+            .fixedSize(horizontal: false, vertical: true)
+            .padding(.leading, 38)
+        }
     }
 
     private func coldEntry(_ item: ColdStorageDestination) -> some View {

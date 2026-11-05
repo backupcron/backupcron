@@ -6,14 +6,14 @@ subscriptions or a limit on the number of jobs.
 
 ## Download
 
-[Download BackupCron 1.4 for macOS](https://github.com/backupcron/backupcron/releases/download/v1.4/BackupCron-1.4-universal-installer.dmg)
+[Download BackupCron 1.5 for macOS](https://github.com/backupcron/backupcron/releases/download/v1.5/BackupCron-1.5-universal-installer.dmg)
 
 Universal build for Apple Silicon and Intel; requires macOS 14 or later.
 Open the DMG and drag BackupCron into Applications.
 
 This build is ad hoc signed and is not notarized by Apple. For first-launch
 instructions and the SHA-256 checksum, see the
-[release page](https://github.com/backupcron/backupcron/releases/tag/v1.4).
+[release page](https://github.com/backupcron/backupcron/releases/tag/v1.5).
 
 ## Screenshots
 

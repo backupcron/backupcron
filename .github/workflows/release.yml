@@ -82,17 +82,12 @@ jobs:
         shell: bash
         run: |
           cat > "$RUNNER_TEMP/release-notes.md" <<'NOTES'
-          ## External disks, cold storage and remote folders
+          ## Backup dates in the macOS menu bar
 
-          - Cold storage for verified copies of successful backups on selected external disks.
-          - External disk detection and copying on connection, including support for renamed disks.
-          - Continuous folder copying with incremental checkpoints, retries and cancellation; older destination files are preserved.
-          - Remote folder backups over SSH using rsync, as separate copies or ZIP archives.
-          - An expanded menu bar panel with job controls, progress, cold storage status and activity animation.
-          - Settings backup and restore now include cold storage configuration.
-          - Updated interface translations in all ten supported languages.
-
-          Restoring pauses the scheduler. Check paths, access permissions and passwords before enabling it. Passwords, file-access permissions, history and system startup registration are not transferred. iCloud Drive manages uploading the saved files.
+          - Each job in the menu bar panel shows the date and time of its last successful backup and next scheduled run.
+          - Schedule details refresh every 30 seconds and reflect paused, manual, running and overdue jobs.
+          - Continuous external-disk copies retain their pending-file status and show the last successful checkpoint.
+          - Uses the existing translations in all ten supported languages.
 
           Download the universal DMG for Apple Silicon or Intel, open it and drag BackupCron into Applications. Requires macOS 14 or later.
 

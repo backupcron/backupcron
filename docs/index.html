@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fbfaf8">
+  <title>BackupCron — резервные копии по расписанию для macOS</title>
+  <meta name="description" content="Бесплатное приложение для macOS. Сохраняйте файлы, проекты и базы данных по расписанию, выбирайте исключения и количество копий.">
+  <link rel="canonical" href="https://backupcron.com/">
+  <link rel="alternate" hreflang="de" href="https://backupcron.com/de/">
+  <link rel="alternate" hreflang="en" href="https://backupcron.com/en/">
+  <link rel="alternate" hreflang="es" href="https://backupcron.com/es/">
+  <link rel="alternate" hreflang="fr" href="https://backupcron.com/fr/">
+  <link rel="alternate" hreflang="it" href="https://backupcron.com/it/">
+  <link rel="alternate" hreflang="pt-BR" href="https://backupcron.com/pt-br/">
+  <link rel="alternate" hreflang="ru" href="https://backupcron.com/">
+  <link rel="alternate" hreflang="ja" href="https://backupcron.com/ja/">
+  <link rel="alternate" hreflang="ko" href="https://backupcron.com/ko/">
+  <link rel="alternate" hreflang="zh-Hans" href="https://backupcron.com/zh-hans/">
+  <link rel="alternate" hreflang="x-default" href="https://backupcron.com/">
+  <link rel="icon" type="image/png" href="assets/icon.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body id="top">
+  <a class="skip-link" href="#main">Перейти к содержанию</a>
+  <header class="wrap masthead">
+    <a class="brand" href="#top" aria-label="BackupCron, к началу страницы">
+      <img src="assets/icon.png" alt="" width="96" height="96">
+      BackupCron
+    </a>
+    <nav aria-label="Главное меню">
+      <a href="#features">Возможности</a>
+      <a href="#install">Установка</a>
+      <a href="https://github.com/backupcron/backupcron">GitHub</a>
+    </nav>
+    <details class="language-menu">
+      <summary aria-label="Язык сайта — Русский">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/>
+        </svg>
+        RU
+      </summary>
+      <ul>
+        <li><a href="de/" hreflang="de" lang="de">Deutsch</a></li>
+        <li><a href="en/" hreflang="en" lang="en">English</a></li>
+        <li><a href="es/" hreflang="es" lang="es">Español</a></li>
+        <li><a href="fr/" hreflang="fr" lang="fr">Français</a></li>
+        <li><a href="it/" hreflang="it" lang="it">Italiano</a></li>
+        <li><a href="pt-br/" hreflang="pt-BR" lang="pt-BR">Português (Brasil)</a></li>
+        <li><a href="./" hreflang="ru" lang="ru" aria-current="page">Русский</a></li>
+        <li><a href="ja/" hreflang="ja" lang="ja">日本語</a></li>
+        <li><a href="ko/" hreflang="ko" lang="ko">한국어</a></li>
+        <li><a href="zh-hans/" hreflang="zh-Hans" lang="zh-Hans">简体中文</a></li>
+      </ul>
+    </details>
+  </header>
+  <main id="main" class="wrap">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <h1 id="hero-title">Резервные<br>копии по<br>расписанию.</h1>
+        <p class="intro">Сохраняйте файлы, проекты и базы данных на Mac. Бесплатно, с открытым исходным кодом.</p>
+        <a class="download" href="https://github.com/backupcron/backupcron/releases/download/v1.5/BackupCron-1.5-universal-installer.dmg">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 3v12m-5-5 5 5 5-5M3 16v4h18v-4"/>
+          </svg>
+          Скачать для macOS
+        </a>
+        <p class="compatibility">macOS 14 и новее · Apple Silicon и Intel</p>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <svg class="rings" viewBox="0 0 670 580" preserveAspectRatio="none" fill="none" stroke="white">
+          <rect x="48" y="34" width="574" height="512" rx="150"/>
+          <rect x="81" y="64" width="508" height="452" rx="127"/>
+          <rect x="114" y="93" width="442" height="394" rx="103"/>
+          <rect x="143" y="120" width="384" height="340" rx="82"/>
+        </svg>
+        <img src="assets/backupcron.png" width="768" height="768" alt="" fetchpriority="high">
+      </div>
+    </section>
+
+    <section id="features" class="features" aria-labelledby="features-title">
+      <h2 id="features-title">Что можно сохранить</h2>
+      <fieldset class="gallery">
+        <legend class="sr-only">Выберите, что сохранить</legend>
+        <div class="choices">
+          <div class="choice">
+            <input class="sr-only" type="radio" name="source" id="files" checked aria-describedby="files-description">
+            <label for="files">Файлы и папки</label>
+            <p id="files-description">Сохраняйте обычные копии или ZIP-архивы. Выбирайте, сколько последних версий оставить.</p>
+          </div>
+          <div class="choice">
+            <input class="sr-only" type="radio" name="source" id="projects" aria-describedby="projects-description">
+            <label for="projects">Проекты</label>
+            <p id="projects-description">Включите в копию историю Git. Исключите папки зависимостей, например <code>node_modules</code>.</p>
+          </div>
+          <div class="choice">
+            <input class="sr-only" type="radio" name="source" id="databases" aria-describedby="databases-description">
+            <label for="databases">Базы данных</label>
+            <p id="databases-description">Делайте снимки SQLite и дампы PostgreSQL или MySQL. Проверьте размер таблиц и выберите, какие сохранить.</p>
+          </div>
+        </div>
+        <div class="preview">
+          <a class="screen screen-files" href="assets/overview.jpg" aria-label="Открыть скриншот обзора резервных копий в полном размере">
+            <img src="assets/overview.jpg" width="2200" height="1476" alt="Обзор BackupCron с результатами копирования и временем следующего запуска" loading="lazy">
+          </a>
+          <a class="screen screen-projects" href="assets/project-exclusions.jpg" aria-label="Открыть скриншот настроек проекта в полном размере">
+            <img src="assets/project-exclusions.jpg" width="1360" height="1300" alt="Настройки проекта с включённой историей Git и исключённой папкой node_modules" loading="lazy">
+          </a>
+          <a class="screen screen-databases" href="assets/database-tables.jpg" aria-label="Открыть скриншот выбора таблиц в полном размере">
+            <img src="assets/database-tables.jpg" width="1360" height="1300" alt="Выбор таблиц базы данных по именам и занимаемому месту" loading="lazy">
+          </a>
+        </div>
+      </fieldset>
+    </section>
+
+    <section id="install" class="install" aria-labelledby="install-title">
+      <h2 id="install-title">Установка на Mac</h2>
+      <div>
+        <p>Откройте скачанный DMG и перетащите BackupCron в папку «Программы».</p>
+        <p>У версии 1.5 нет нотариального заверения Apple. <a href="https://github.com/backupcron/backupcron/releases/tag/v1.5">Инструкция для первого запуска</a></p>
+        <p>Для копирования по расписанию оставьте BackupCron открытым. В настройках можно включить запуск при входе в macOS.</p>
+      </div>
+    </section>
+  </main>
+  <footer class="wrap">
+    <a href="#top">BackupCron</a><span aria-hidden="true">·</span><a href="https://github.com/backupcron/backupcron">GitHub</a>
+  </footer>
+</body>
+</html>

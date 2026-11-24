@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fbfaf8">
+  <title>BackupCron — Mac 定时备份工具</title>
+  <meta name="description" content="一款免费的 macOS 应用，可按计划备份文件、项目和数据库。你可以选择要排除的内容，也可以指定保留多少份备份。">
+  <link rel="canonical" href="https://backupcron.com/zh-hans/">
+  <link rel="alternate" hreflang="de" href="https://backupcron.com/de/">
+  <link rel="alternate" hreflang="en" href="https://backupcron.com/en/">
+  <link rel="alternate" hreflang="es" href="https://backupcron.com/es/">
+  <link rel="alternate" hreflang="fr" href="https://backupcron.com/fr/">
+  <link rel="alternate" hreflang="it" href="https://backupcron.com/it/">
+  <link rel="alternate" hreflang="pt-BR" href="https://backupcron.com/pt-br/">
+  <link rel="alternate" hreflang="ru" href="https://backupcron.com/">
+  <link rel="alternate" hreflang="ja" href="https://backupcron.com/ja/">
+  <link rel="alternate" hreflang="ko" href="https://backupcron.com/ko/">
+  <link rel="alternate" hreflang="zh-Hans" href="https://backupcron.com/zh-hans/">
+  <link rel="alternate" hreflang="x-default" href="https://backupcron.com/">
+  <link rel="icon" type="image/png" href="../assets/icon.png">
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body id="top">
+  <a class="skip-link" href="#main">跳至正文</a>
+  <header class="wrap masthead">
+    <a class="brand" href="#top" aria-label="BackupCron，返回页首">
+      <img src="../assets/icon.png" alt="" width="96" height="96">
+      BackupCron
+    </a>
+    <nav aria-label="主菜单">
+      <a href="#features">功能</a>
+      <a href="#install">安装</a>
+      <a href="https://github.com/backupcron/backupcron">GitHub</a>
+    </nav>
+    <details class="language-menu">
+      <summary aria-label="选择语言 — 简体中文">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/>
+        </svg>
+        ZH
+      </summary>
+      <ul>
+        <li><a href="../de/" hreflang="de" lang="de">Deutsch</a></li>
+        <li><a href="../en/" hreflang="en" lang="en">English</a></li>
+        <li><a href="../es/" hreflang="es" lang="es">Español</a></li>
+        <li><a href="../fr/" hreflang="fr" lang="fr">Français</a></li>
+        <li><a href="../it/" hreflang="it" lang="it">Italiano</a></li>
+        <li><a href="../pt-br/" hreflang="pt-BR" lang="pt-BR">Português (Brasil)</a></li>
+        <li><a href="../" hreflang="ru" lang="ru">Русский</a></li>
+        <li><a href="../ja/" hreflang="ja" lang="ja">日本語</a></li>
+        <li><a href="../ko/" hreflang="ko" lang="ko">한국어</a></li>
+        <li><a href="./" hreflang="zh-Hans" lang="zh-Hans" aria-current="page">简体中文</a></li>
+      </ul>
+    </details>
+  </header>
+  <main id="main" class="wrap">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <h1 id="hero-title">按计划<br>自动备份</h1>
+        <p class="intro">在 Mac 上备份文件、项目和数据库。免费使用，源码开放。</p>
+        <a class="download" href="https://github.com/backupcron/backupcron/releases/download/v1.5/BackupCron-1.5-universal-installer.dmg">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 3v12m-5-5 5 5 5-5M3 16v4h18v-4"/>
+          </svg>
+          下载 macOS 版
+        </a>
+        <p class="compatibility">macOS 14 及更高版本 · 支持 Apple 芯片和 Intel 芯片的 Mac</p>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <svg class="rings" viewBox="0 0 670 580" preserveAspectRatio="none" fill="none" stroke="white">
+          <rect x="48" y="34" width="574" height="512" rx="150"/>
+          <rect x="81" y="64" width="508" height="452" rx="127"/>
+          <rect x="114" y="93" width="442" height="394" rx="103"/>
+          <rect x="143" y="120" width="384" height="340" rx="82"/>
+        </svg>
+        <img src="../assets/backupcron.png" width="768" height="768" alt="" fetchpriority="high">
+      </div>
+    </section>
+
+    <section id="features" class="features" aria-labelledby="features-title">
+      <h2 id="features-title">可以备份哪些内容</h2>
+      <fieldset class="gallery">
+        <legend class="sr-only">选择要备份的内容</legend>
+        <div class="choices">
+          <div class="choice">
+            <input class="sr-only" type="radio" name="source" id="files" checked aria-describedby="files-description">
+            <label for="files">文件和文件夹</label>
+            <p id="files-description">按原样复制文件或保存为 ZIP 压缩包。你可以指定保留最近的几份备份。</p>
+          </div>
+          <div class="choice">
+            <input class="sr-only" type="radio" name="source" id="projects" aria-describedby="projects-description">
+            <label for="projects">项目</label>
+            <p id="projects-description">将 Git 历史记录一并备份，也可以排除 <code>node_modules</code> 等依赖目录。</p>
+          </div>
+          <div class="choice">
+            <input class="sr-only" type="radio" name="source" id="databases" aria-describedby="databases-description">
+            <label for="databases">数据库</label>
+            <p id="databases-description">创建 SQLite 快照，或导出 PostgreSQL 和 MySQL 的 SQL 转储。查看每张表的大小，再选择要保存的表。</p>
+          </div>
+        </div>
+        <div class="preview">
+          <a class="screen screen-files" href="../assets/overview.jpg" aria-label="查看备份概览截图原图">
+            <img src="../assets/overview.jpg" width="2200" height="1476" alt="BackupCron 概览，显示备份结果和下次运行时间" loading="lazy">
+          </a>
+          <a class="screen screen-projects" href="../assets/project-exclusions.jpg" aria-label="查看项目设置截图原图">
+            <img src="../assets/project-exclusions.jpg" width="1360" height="1300" alt="项目设置已勾选 Git 历史记录，并排除 node_modules 文件夹" loading="lazy">
+          </a>
+          <a class="screen screen-databases" href="../assets/database-tables.jpg" aria-label="查看数据表选择界面截图原图">
+            <img src="../assets/database-tables.jpg" width="1360" height="1300" alt="按名称和占用空间选择要备份的数据表" loading="lazy">
+          </a>
+        </div>
+      </fieldset>
+    </section>
+
+    <section id="install" class="install" aria-labelledby="install-title">
+      <h2 id="install-title">在 Mac 上安装</h2>
+      <div>
+        <p>打开下载的 DMG 文件，将 BackupCron 拖入“应用程序”文件夹。</p>
+        <p>1.5 版未经 Apple 公证。 <a href="https://github.com/backupcron/backupcron/releases/tag/v1.5">首次打开指南</a></p>
+        <p>要按计划执行备份，请保持 BackupCron 运行。你可以在设置中启用登录 macOS 时自动启动。</p>
+      </div>
+    </section>
+  </main>
+  <footer class="wrap">
+    <a href="#top">BackupCron</a><span aria-hidden="true">·</span><a href="https://github.com/backupcron/backupcron">GitHub</a>
+  </footer>
+</body>
+</html>

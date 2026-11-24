@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fbfaf8">
+  <title>BackupCron — copias de seguridad programadas para macOS</title>
+  <meta name="description" content="Aplicación gratuita para macOS. Programa copias de archivos, proyectos y bases de datos. Elige qué excluir y cuántas versiones conservar.">
+  <link rel="canonical" href="https://backupcron.com/es/">
+  <link rel="alternate" hreflang="de" href="https://backupcron.com/de/">
+  <link rel="alternate" hreflang="en" href="https://backupcron.com/en/">
+  <link rel="alternate" hreflang="es" href="https://backupcron.com/es/">
+  <link rel="alternate" hreflang="fr" href="https://backupcron.com/fr/">
+  <link rel="alternate" hreflang="it" href="https://backupcron.com/it/">
+  <link rel="alternate" hreflang="pt-BR" href="https://backupcron.com/pt-br/">
+  <link rel="alternate" hreflang="ru" href="https://backupcron.com/">
+  <link rel="alternate" hreflang="ja" href="https://backupcron.com/ja/">
+  <link rel="alternate" hreflang="ko" href="https://backupcron.com/ko/">
+  <link rel="alternate" hreflang="zh-Hans" href="https://backupcron.com/zh-hans/">
+  <link rel="alternate" hreflang="x-default" href="https://backupcron.com/">
+  <link rel="icon" type="image/png" href="../assets/icon.png">
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body id="top">
+  <a class="skip-link" href="#main">Saltar al contenido</a>
+  <header class="wrap masthead">
+    <a class="brand" href="#top" aria-label="BackupCron, volver al inicio de la página">
+      <img src="../assets/icon.png" alt="" width="96" height="96">
+      BackupCron
+    </a>
+    <nav aria-label="Menú principal">
+      <a href="#features">Funciones</a>
+      <a href="#install">Instalación</a>
+      <a href="https://github.com/backupcron/backupcron">GitHub</a>
+    </nav>
+    <details class="language-menu">
+      <summary aria-label="Elegir idioma — Español">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/>
+        </svg>
+        ES
+      </summary>
+      <ul>
+        <li><a href="../de/" hreflang="de" lang="de">Deutsch</a></li>
+        <li><a href="../en/" hreflang="en" lang="en">English</a></li>
+        <li><a href="./" hreflang="es" lang="es" aria-current="page">Español</a></li>
+        <li><a href="../fr/" hreflang="fr" lang="fr">Français</a></li>
+        <li><a href="../it/" hreflang="it" lang="it">Italiano</a></li>
+        <li><a href="../pt-br/" hreflang="pt-BR" lang="pt-BR">Português (Brasil)</a></li>
+        <li><a href="../" hreflang="ru" lang="ru">Русский</a></li>
+        <li><a href="../ja/" hreflang="ja" lang="ja">日本語</a></li>
+        <li><a href="../ko/" hreflang="ko" lang="ko">한국어</a></li>
+        <li><a href="../zh-hans/" hreflang="zh-Hans" lang="zh-Hans">简体中文</a></li>
+      </ul>
+    </details>
+  </header>
+  <main id="main" class="wrap">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <h1 id="hero-title">Copias de<br>seguridad<br>programadas.</h1>
+        <p class="intro">Guarda archivos, proyectos y bases de datos en tu Mac con una aplicación gratuita y de código abierto.</p>
+        <a class="download" href="https://github.com/backupcron/backupcron/releases/download/v1.5/BackupCron-1.5-universal-installer.dmg">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 3v12m-5-5 5 5 5-5M3 16v4h18v-4"/>
+          </svg>
+          Descargar para macOS
+        </a>
+        <p class="compatibility">macOS 14 o posterior · Apple Silicon e Intel</p>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <svg class="rings" viewBox="0 0 670 580" preserveAspectRatio="none" fill="none" stroke="white">
+          <rect x="48" y="34" width="574" height="512" rx="150"/>
+          <rect x="81" y="64" width="508" height="452" rx="127"/>
+          <rect x="114" y="93" width="442" height="394" rx="103"/>
+          <rect x="143" y="120" width="384" height="340" rx="82"/>
+        </svg>
+        <img src="../assets/backupcron.png" width="768" height="768" alt="" fetchpriority="high">
+      </div>
+    </section>
+
+    <section id="features" class="features" aria-labelledby="features-title">
+      <h2 id="features-title">Qué puedes guardar</h2>
+      <fieldset class="gallery">
+        <legend class="sr-only">Elige qué quieres guardar</legend>
+        <div class="choices">
+          <div class="choice">
+            <input class="sr-only" type="radio" name="source" id="files" checked aria-describedby="files-description">
+            <label for="files">Archivos y carpetas</label>
+            <p id="files-description">Guarda copias sin comprimir o en formato ZIP. Elige cuántas versiones recientes conservar.</p>
+          </div>
+          <div class="choice">
+            <input class="sr-only" type="radio" name="source" id="projects" aria-describedby="projects-description">
+            <label for="projects">Proyectos</label>
+            <p id="projects-description">Incluye el historial de Git en la copia. Excluye carpetas de dependencias como <code>node_modules</code>.</p>
+          </div>
+          <div class="choice">
+            <input class="sr-only" type="radio" name="source" id="databases" aria-describedby="databases-description">
+            <label for="databases">Bases de datos</label>
+            <p id="databases-description">Crea instantáneas de SQLite y volcados de PostgreSQL o MySQL. Consulta el tamaño de las tablas y elige cuáles guardar.</p>
+          </div>
+        </div>
+        <div class="preview">
+          <a class="screen screen-files" href="../assets/overview.jpg" aria-label="Abrir la vista general de las copias de seguridad a tamaño completo">
+            <img src="../assets/overview.jpg" width="2200" height="1476" alt="Vista general de BackupCron con los resultados de las copias y la hora de la próxima ejecución" loading="lazy">
+          </a>
+          <a class="screen screen-projects" href="../assets/project-exclusions.jpg" aria-label="Abrir la captura de los ajustes del proyecto a tamaño completo">
+            <img src="../assets/project-exclusions.jpg" width="1360" height="1300" alt="Ajustes del proyecto con el historial de Git incluido y la carpeta node_modules excluida" loading="lazy">
+          </a>
+          <a class="screen screen-databases" href="../assets/database-tables.jpg" aria-label="Abrir la captura de la selección de tablas a tamaño completo">
+            <img src="../assets/database-tables.jpg" width="1360" height="1300" alt="Selección de tablas de la base de datos con sus nombres y el espacio que ocupan" loading="lazy">
+          </a>
+        </div>
+      </fieldset>
+    </section>
+
+    <section id="install" class="install" aria-labelledby="install-title">
+      <h2 id="install-title">Instalación en Mac</h2>
+      <div>
+        <p>Abre el archivo DMG que has descargado y arrastra BackupCron a la carpeta Aplicaciones.</p>
+        <p>La versión 1.5 no está notarizada por Apple. <a href="https://github.com/backupcron/backupcron/releases/tag/v1.5">Cómo abrir la aplicación por primera vez</a></p>
+        <p>Deja BackupCron abierto para que se ejecuten las copias programadas. En los ajustes puedes activar la apertura de la aplicación al iniciar sesión en macOS.</p>
+      </div>
+    </section>
+  </main>
+  <footer class="wrap">
+    <a href="#top">BackupCron</a><span aria-hidden="true">·</span><a href="https://github.com/backupcron/backupcron">GitHub</a>
+  </footer>
+</body>
+</html>

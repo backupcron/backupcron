@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fbfaf8">
+  <title>BackupCron — macOS용 예약 백업</title>
+  <meta name="description" content="파일, 프로젝트, 데이터베이스를 예약한 시간에 백업하는 무료 macOS 앱입니다. 백업에서 제외할 항목과 보관할 사본 수를 지정할 수 있습니다.">
+  <link rel="canonical" href="https://backupcron.com/ko/">
+  <link rel="alternate" hreflang="de" href="https://backupcron.com/de/">
+  <link rel="alternate" hreflang="en" href="https://backupcron.com/en/">
+  <link rel="alternate" hreflang="es" href="https://backupcron.com/es/">
+  <link rel="alternate" hreflang="fr" href="https://backupcron.com/fr/">
+  <link rel="alternate" hreflang="it" href="https://backupcron.com/it/">
+  <link rel="alternate" hreflang="pt-BR" href="https://backupcron.com/pt-br/">
+  <link rel="alternate" hreflang="ru" href="https://backupcron.com/">
+  <link rel="alternate" hreflang="ja" href="https://backupcron.com/ja/">
+  <link rel="alternate" hreflang="ko" href="https://backupcron.com/ko/">
+  <link rel="alternate" hreflang="zh-Hans" href="https://backupcron.com/zh-hans/">
+  <link rel="alternate" hreflang="x-default" href="https://backupcron.com/">
+  <link rel="icon" type="image/png" href="../assets/icon.png">
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body id="top">
+  <a class="skip-link" href="#main">본문으로 바로 가기</a>
+  <header class="wrap masthead">
+    <a class="brand" href="#top" aria-label="BackupCron, 페이지 맨 위로">
+      <img src="../assets/icon.png" alt="" width="96" height="96">
+      BackupCron
+    </a>
+    <nav aria-label="주 메뉴">
+      <a href="#features">기능</a>
+      <a href="#install">설치</a>
+      <a href="https://github.com/backupcron/backupcron">GitHub</a>
+    </nav>
+    <details class="language-menu">
+      <summary aria-label="언어 선택 — 한국어">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/>
+        </svg>
+        KO
+      </summary>
+      <ul>
+        <li><a href="../de/" hreflang="de" lang="de">Deutsch</a></li>
+        <li><a href="../en/" hreflang="en" lang="en">English</a></li>
+        <li><a href="../es/" hreflang="es" lang="es">Español</a></li>
+        <li><a href="../fr/" hreflang="fr" lang="fr">Français</a></li>
+        <li><a href="../it/" hreflang="it" lang="it">Italiano</a></li>
+        <li><a href="../pt-br/" hreflang="pt-BR" lang="pt-BR">Português (Brasil)</a></li>
+        <li><a href="../" hreflang="ru" lang="ru">Русский</a></li>
+        <li><a href="../ja/" hreflang="ja" lang="ja">日本語</a></li>
+        <li><a href="./" hreflang="ko" lang="ko" aria-current="page">한국어</a></li>
+        <li><a href="../zh-hans/" hreflang="zh-Hans" lang="zh-Hans">简体中文</a></li>
+      </ul>
+    </details>
+  </header>
+  <main id="main" class="wrap">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <h1 id="hero-title">원하는 시간에<br>자동 백업</h1>
+        <p class="intro">Mac에서 파일, 프로젝트, 데이터베이스를 백업하세요. 무료로 사용할 수 있는 오픈 소스 앱입니다.</p>
+        <a class="download" href="https://github.com/backupcron/backupcron/releases/download/v1.5/BackupCron-1.5-universal-installer.dmg">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 3v12m-5-5 5 5 5-5M3 16v4h18v-4"/>
+          </svg>
+          macOS용 다운로드
+        </a>
+        <p class="compatibility">macOS 14 이상 · Apple Silicon 및 Intel Mac 지원</p>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <svg class="rings" viewBox="0 0 670 580" preserveAspectRatio="none" fill="none" stroke="white">
+          <rect x="48" y="34" width="574" height="512" rx="150"/>
+          <rect x="81" y="64" width="508" height="452" rx="127"/>
+          <rect x="114" y="93" width="442" height="394" rx="103"/>
+          <rect x="143" y="120" width="384" height="340" rx="82"/>
+        </svg>
+        <img src="../assets/backupcron.png" width="768" height="768" alt="" fetchpriority="high">
+      </div>
+    </section>
+
+    <section id="features" class="features" aria-labelledby="features-title">
+      <h2 id="features-title">백업할 수 있는 항목</h2>
+      <fieldset class="gallery">
+        <legend class="sr-only">백업할 항목 선택</legend>
+        <div class="choices">
+          <div class="choice">
+            <input class="sr-only" type="radio" name="source" id="files" checked aria-describedby="files-description">
+            <label for="files">파일 및 폴더</label>
+            <p id="files-description">원본 형식 그대로 복사하거나 ZIP 파일로 저장하세요. 최근 백업을 몇 개까지 보관할지도 선택할 수 있습니다.</p>
+          </div>
+          <div class="choice">
+            <input class="sr-only" type="radio" name="source" id="projects" aria-describedby="projects-description">
+            <label for="projects">프로젝트</label>
+            <p id="projects-description">백업에 Git 기록을 포함할 수 있습니다. <code>node_modules</code> 같은 의존성 폴더는 제외할 수 있습니다.</p>
+          </div>
+          <div class="choice">
+            <input class="sr-only" type="radio" name="source" id="databases" aria-describedby="databases-description">
+            <label for="databases">데이터베이스</label>
+            <p id="databases-description">SQLite 스냅샷과 PostgreSQL 또는 MySQL 덤프를 만들 수 있습니다. 테이블 크기를 확인한 뒤 저장할 테이블을 선택하세요.</p>
+          </div>
+        </div>
+        <div class="preview">
+          <a class="screen screen-files" href="../assets/overview.jpg" aria-label="백업 개요 스크린샷을 원본 크기로 열기">
+            <img src="../assets/overview.jpg" width="2200" height="1476" alt="백업 결과와 다음 실행 시각을 보여 주는 BackupCron 개요 화면" loading="lazy">
+          </a>
+          <a class="screen screen-projects" href="../assets/project-exclusions.jpg" aria-label="프로젝트 설정 스크린샷을 원본 크기로 열기">
+            <img src="../assets/project-exclusions.jpg" width="1360" height="1300" alt="Git 기록을 포함하고 node_modules 폴더를 제외하도록 지정한 프로젝트 설정" loading="lazy">
+          </a>
+          <a class="screen screen-databases" href="../assets/database-tables.jpg" aria-label="테이블 선택 스크린샷을 원본 크기로 열기">
+            <img src="../assets/database-tables.jpg" width="1360" height="1300" alt="이름과 사용 용량을 확인하며 데이터베이스 테이블을 선택하는 화면" loading="lazy">
+          </a>
+        </div>
+      </fieldset>
+    </section>
+
+    <section id="install" class="install" aria-labelledby="install-title">
+      <h2 id="install-title">Mac에 설치하기</h2>
+      <div>
+        <p>다운로드한 DMG를 열고 BackupCron을 응용 프로그램 폴더로 드래그하세요.</p>
+        <p>버전 1.5는 Apple의 공증을 받지 않았습니다. <a href="https://github.com/backupcron/backupcron/releases/tag/v1.5">처음 실행하는 방법</a></p>
+        <p>예약한 시간에 백업하려면 BackupCron을 실행한 상태로 두세요. 설정에서 macOS 로그인 시 자동 실행을 켤 수 있습니다.</p>
+      </div>
+    </section>
+  </main>
+  <footer class="wrap">
+    <a href="#top">BackupCron</a><span aria-hidden="true">·</span><a href="https://github.com/backupcron/backupcron">GitHub</a>
+  </footer>
+</body>
+</html>
